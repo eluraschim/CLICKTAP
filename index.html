@@ -338,24 +338,6 @@
       gap: 8px;
     }
 
-    .cps-unlock-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 6px 10px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .cps-milestones {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-    }
-
     .live-run-metrics {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -382,40 +364,6 @@
       line-height: 1.05;
       color: #ffffff;
       text-shadow: 0 0 12px var(--active-glow);
-    }
-
-    .milestone-chip {
-      padding: 7px 6px;
-      text-align: center;
-      font-family: var(--font-display);
-      font-style: italic;
-      font-size: 11px;
-      font-weight: 800;
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      background: rgba(3, 7, 18, 0.75);
-      color: var(--text-slate);
-      transition: all 0.16s ease;
-    }
-
-    .milestone-chip.unlocked-t1 {
-      border-color: var(--cyan);
-      color: var(--cyan);
-      background: rgba(0, 243, 255, 0.14);
-      box-shadow: 0 0 10px rgba(0, 243, 255, 0.25);
-    }
-
-    .milestone-chip.unlocked-t2 {
-      border-color: var(--magenta);
-      color: #ff6699;
-      background: rgba(255, 0, 85, 0.16);
-      box-shadow: 0 0 12px rgba(255, 0, 85, 0.3);
-    }
-
-    .milestone-chip.unlocked-t3 {
-      border-color: var(--gold);
-      color: var(--gold);
-      background: rgba(255, 230, 0, 0.16);
-      box-shadow: 0 0 14px rgba(255, 230, 0, 0.35);
     }
 
     .record-banner {
@@ -535,8 +483,9 @@
 
     #tap-button {
       position: relative;
-      width: min(100%, 330px);
+      width: min(100%, 340px);
       min-height: 184px;
+      padding: 14px 16px;
       border: 2px solid var(--active-accent);
       background:
         radial-gradient(circle at 50% 35%, var(--active-dim), rgba(4, 10, 24, 0.96) 72%),
@@ -553,6 +502,7 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
+      text-align: center;
       transition: transform 0.04s ease, border-color 0.16s ease, box-shadow 0.16s ease;
     }
 
@@ -561,7 +511,7 @@
       position: absolute;
       inset: 6px;
       border: 1px solid rgba(255, 255, 255, 0.14);
-      clip-path: polygon(16px 0, calc(100% - 16px) 0, 100% 16px, 100% calc(100% - 16px), calc(100% - 16px) 100%, 16px 100%, 0 calc(100% - 16px), 0 16px);
+      clip-path: polygon(16px 0, calc(100% - 16px) 0, 100% 16px, 100% calc(100% - 16px), calc(100% - 16px) 100%, 16px 100%, 0 calc(100% - 22px), 0 16px);
       pointer-events: none;
     }
 
@@ -573,9 +523,10 @@
     .reactor-core-title {
       font-family: var(--font-display);
       font-style: italic;
-      font-size: clamp(26px, 5vw, 33px);
+      font-size: clamp(20px, 4.3vw, 27px);
       font-weight: 900;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.08em;
+      line-height: 1.15;
       text-transform: uppercase;
       color: #ffffff;
       text-shadow: 0 0 14px var(--active-glow);
@@ -588,6 +539,7 @@
       font-size: 12px;
       font-weight: 700;
       letter-spacing: 0.06em;
+      line-height: 1.25;
       text-transform: uppercase;
       color: var(--active-accent);
       z-index: 2;
@@ -654,6 +606,11 @@
       padding: 12px;
       background: rgba(2, 4, 12, 0.86);
       backdrop-filter: blur(8px);
+    }
+
+    #help-overlay.modal-backdrop {
+      background: rgba(2, 4, 12, 0.52);
+      backdrop-filter: blur(2.5px);
     }
 
     .modal-backdrop.open {
@@ -935,6 +892,16 @@
       gap: 14px;
     }
 
+    #help-overlay .dialog-card {
+      width: min(92vw, 440px);
+      max-height: 72dvh;
+      padding: 14px 16px;
+      gap: 10px;
+      background: linear-gradient(180deg, rgba(7, 14, 32, 0.84) 0%, rgba(3, 7, 18, 0.88) 100%);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 0 28px rgba(0, 243, 255, 0.28);
+    }
+
     .btn-neon-primary {
       min-height: 44px;
       padding: 10px 18px;
@@ -1028,9 +995,9 @@
         <div class="orbital-ring" aria-hidden="true"></div>
         <div class="orbital-ring inner" aria-hidden="true"></div>
 
-        <button id="tap-button" type="button" class="chamfer-lg" aria-label="Reactor de clics Overtap">
-          <span id="tap-button-label" class="reactor-core-title">INICIAR</span>
-          <span id="tap-button-sub" class="reactor-core-sub">TOCÁ O PULSÁ ESPACIO (&lt; 200 MS)</span>
+        <button id="tap-button" type="button" class="chamfer-lg" aria-label="Botón principal de clics Overtap">
+          <span id="tap-button-label" class="reactor-core-title">¡TOCÁ SIN PARAR!</span>
+          <span id="tap-button-sub" class="reactor-core-sub">HACÉ MUCHOS CLICS SEGUIDOS (&lt; 200 MS)</span>
         </button>
       </div>
 
@@ -1196,37 +1163,38 @@
       <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px; line-height: 1.45; color: var(--text-main);">
         <div style="padding: 10px 12px; background: #02050e; border: 1px solid rgba(0, 243, 255, 0.25);">
           <div style="font-family: var(--font-display); font-size: 12px; font-weight: 800; color: var(--cyan); margin-bottom: 4px;">
-            1. CARGA DEL REACTOR (&lt; 200 MS)
+            1. HACÉ MUCHOS CLICS SEGUIDOS (&lt; 200 MS)
           </div>
           <p style="margin: 0; color: var(--text-slate);">
-            Tocá el reactor o pulsá <strong>ESPACIO</strong> sin dejar pasar más de <strong>200 ms</strong> entre clics. Cada toque suma 1 punto base y alimenta tu velocidad en <strong>CPS</strong> (clics por segundo).
+            No es un solo toque: tocá el botón central (o pulsá <strong>ESPACIO</strong>) muchas veces seguidas lo más rápido que puedas sin dejar pasar más de <strong>200 ms</strong> entre toque y toque. Cada clic suma <strong>1 punto</strong> y sube tu velocidad (<strong>CPS</strong>). Cuando frenás, empieza el cierre final.
           </p>
         </div>
 
         <div style="padding: 10px 12px; background: #02050e; border: 1px solid rgba(255, 0, 85, 0.35);">
           <div style="font-family: var(--font-display); font-size: 12px; font-weight: 800; color: #ff6699; margin-bottom: 4px;">
-            2. TECHOS DE VELOCIDAD Y DIFERENCIAS PC VS MÓVIL
+            2. SUBÍ TU VELOCIDAD (CPS) PARA DESBLOQUEAR X4 Y X5
           </div>
           <p style="margin: 0 0 6px; color: var(--text-slate);">
-            A mayor velocidad de CPS, desbloqueás techos multiplicadores más altos para la barra final (<strong>X3</strong> base, <strong>X4</strong> medio y <strong>X5</strong> máximo):
+            Cuanto más rápido cliquees, mayor será el multiplicador máximo que desbloqueás para el cierre (<strong>X3</strong> base, <strong>X4</strong> medio y <strong>X5</strong> máximo):
           </p>
           <ul style="margin: 0; padding-left: 18px; color: var(--text-main);">
-            <li><strong>💻 Modo PC:</strong> Base <strong>X3</strong> · Zona media <strong>X4</strong> desde <strong>8.5 CPS</strong> · Zona máxima <strong>X5</strong> desde <strong>12.0 CPS</strong>.</li>
-            <li><strong>📱 Modo Móvil (táctil):</strong> Base <strong>X3</strong> · Zona media <strong>X4</strong> desde <strong>10.5 CPS</strong> · Zona máxima <strong>X5</strong> al alcanzar <strong>14.0 CPS</strong>.</li>
+            <li><strong>💻 PC:</strong> Base <strong>X3</strong> · Desbloqueás <strong>X4</strong> desde <strong>8.5 CPS</strong> · Desbloqueás <strong>X5</strong> desde <strong>12.0 CPS</strong>.</li>
+            <li><strong>📱 Móvil:</strong> Base <strong>X3</strong> · Desbloqueás <strong>X4</strong> desde <strong>10.5 CPS</strong> · Desbloqueás <strong>X5</strong> desde <strong>14.0 CPS</strong>.</li>
           </ul>
         </div>
 
         <div style="padding: 10px 12px; background: #02050e; border: 1px solid rgba(255, 230, 0, 0.35);">
           <div style="font-family: var(--font-display); font-size: 12px; font-weight: 800; color: var(--gold); margin-bottom: 4px;">
-            3. CORTE DE PRECISIÓN LÁSER (FINAL DE 5.0S)
+            3. CORTE DE PRECISIÓN LÁSER (5.0 SEGUNDOS)
           </div>
           <p style="margin: 0; color: var(--text-slate);">
-            Cuando el intervalo supera los 200 ms, se activa el <strong>Corte Láser</strong> durante <strong>5 segundos</strong>. Frená el haz en el centro para multiplicar tus clics hasta el techo que hayas desbloqueado (<strong>x1.5</strong> a <strong>x5</strong>). Si no frenás a tiempo o caés en los bordes, conservás tus clics con <strong>x1</strong>.
+            Al dejar de cliquear, aparece una barra con una luz móvil durante <strong>5 segundos</strong>. Tocá <strong>FRENAR LÁSER</strong> (o <strong>ESPACIO</strong>) cuando la luz pase por el centro para multiplicar todos tus clics (<strong>x1.5</strong> a <strong>x5</strong>). Si caés en los bordes o se acaba el tiempo, conservás tus clics con <strong>x1</strong>.
           </p>
         </div>
       </div>
 
-      <div style="display: flex; justify-content: flex-end;">
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end;">
+        <button id="dismiss-help-forever-btn" type="button" class="cyber-btn chamfer-sm">NO VOLVER A MOSTRAR</button>
         <button id="close-help-footer-btn" type="button" class="btn-neon-primary chamfer-sm">ENTENDIDO</button>
       </div>
     </div>
@@ -1451,7 +1419,8 @@
         DEDUPE: 'overtap_tron_dedupe_v1',
         RANKING: 'overtap_tron_ranking_v1',
         SOUND_PACK: 'overtap_tron_sound_pack_v1',
-        ROUNDS_PLAYED: 'overtap_tron_rounds_v1'
+        ROUNDS_PLAYED: 'overtap_tron_rounds_v1',
+        HIDE_HELP_ON_START: 'overtap_hide_help_on_start_v1'
       };
 
       const state = {
@@ -1564,7 +1533,24 @@
 
       const helpOverlay = document.getElementById('help-overlay');
       const closeHelpBtn = document.getElementById('close-help-btn');
+      const dismissHelpForeverBtn = document.getElementById('dismiss-help-forever-btn');
       const closeHelpFooterBtn = document.getElementById('close-help-footer-btn');
+
+      function updateMainButtonPrompt() {
+        if (state.phase === 'RUNNING') {
+          tapButtonLabel.textContent = '¡SEGUÍ TOCANDO!';
+          if (state.unlockedCeiling >= 5) {
+            tapButtonSub.textContent = '¡X5 MÁXIMO DESBLOQUEADO!';
+          } else if (state.unlockedCeiling === 4) {
+            tapButtonSub.textContent = '¡X4 DESBLOQUEADO! · ACELERÁ PARA X5';
+          } else {
+            tapButtonSub.textContent = 'ACELERÁ PARA DESBLOQUEAR X4';
+          }
+        } else {
+          tapButtonLabel.textContent = '¡TOCÁ SIN PARAR!';
+          tapButtonSub.textContent = 'HACÉ MUCHOS CLICS SEGUIDOS (< 200 MS)';
+        }
+      }
 
       function loadState() {
         try {
@@ -1889,6 +1875,7 @@
 
         recordAlert.classList.toggle('show', state.beatRecordThisRound);
         applyTierTheme(state.unlockedCeiling);
+        updateMainButtonPrompt();
       }
 
       function renderTopControls() {
@@ -2001,8 +1988,6 @@
           state.intervalsMs = [];
           state.lastTelemetry = null;
           state.beatRecordThisRound = false;
-          tapButtonLabel.textContent = '¡ACTIVO!';
-          tapButtonSub.textContent = 'ACELERÁ EL CPS PARA DESBLOQUEAR X4 / X5';
         } else {
           const dt = now - state.lastTapAt;
           state.lastIntervalMs = dt;
@@ -2176,33 +2161,27 @@
         let innerSpecs = [];
         if (ceiling === 5) {
           innerSpecs = [
-            { mult: 1.5, label: 'x1.5', width: 0.07, cssClass: 'seg-x15' },
-            { mult: 2, label: 'x2', width: 0.06, cssClass: 'seg-x2' },
-            { mult: 3, label: 'x3', width: 0.05, cssClass: 'seg-x3' },
-            { mult: 4, label: 'x4', width: 0.04, cssClass: 'seg-x4' },
-            { mult: 5, label: 'x5', width: 0.034, cssClass: 'seg-x5' },
-            { mult: 4, label: 'x4', width: 0.04, cssClass: 'seg-x4' },
-            { mult: 3, label: 'x3', width: 0.05, cssClass: 'seg-x3' },
-            { mult: 2, label: 'x2', width: 0.06, cssClass: 'seg-x2' },
-            { mult: 1.5, label: 'x1.5', width: 0.07, cssClass: 'seg-x15' }
+            { mult: 2, label: 'x2', width: 0.085, cssClass: 'seg-x2' },
+            { mult: 3, label: 'x3', width: 0.07, cssClass: 'seg-x3' },
+            { mult: 4, label: 'x4', width: 0.055, cssClass: 'seg-x4' },
+            { mult: 5, label: 'x5', width: 0.046, cssClass: 'seg-x5' },
+            { mult: 4, label: 'x4', width: 0.055, cssClass: 'seg-x4' },
+            { mult: 3, label: 'x3', width: 0.07, cssClass: 'seg-x3' },
+            { mult: 2, label: 'x2', width: 0.085, cssClass: 'seg-x2' }
           ];
         } else if (ceiling === 4) {
           innerSpecs = [
-            { mult: 1.5, label: 'x1.5', width: 0.08, cssClass: 'seg-x15' },
-            { mult: 2, label: 'x2', width: 0.07, cssClass: 'seg-x2' },
-            { mult: 3, label: 'x3', width: 0.055, cssClass: 'seg-x3' },
-            { mult: 4, label: 'x4', width: 0.045, cssClass: 'seg-x4' },
-            { mult: 3, label: 'x3', width: 0.055, cssClass: 'seg-x3' },
-            { mult: 2, label: 'x2', width: 0.07, cssClass: 'seg-x2' },
-            { mult: 1.5, label: 'x1.5', width: 0.08, cssClass: 'seg-x15' }
+            { mult: 2, label: 'x2', width: 0.095, cssClass: 'seg-x2' },
+            { mult: 3, label: 'x3', width: 0.075, cssClass: 'seg-x3' },
+            { mult: 4, label: 'x4', width: 0.06, cssClass: 'seg-x4' },
+            { mult: 3, label: 'x3', width: 0.075, cssClass: 'seg-x3' },
+            { mult: 2, label: 'x2', width: 0.095, cssClass: 'seg-x2' }
           ];
         } else {
           innerSpecs = [
-            { mult: 1.5, label: 'x1.5', width: 0.10, cssClass: 'seg-x15' },
-            { mult: 2, label: 'x2', width: 0.08, cssClass: 'seg-x2' },
-            { mult: 3, label: 'x3', width: 0.055, cssClass: 'seg-x3' },
-            { mult: 2, label: 'x2', width: 0.08, cssClass: 'seg-x2' },
-            { mult: 1.5, label: 'x1.5', width: 0.10, cssClass: 'seg-x15' }
+            { mult: 2, label: 'x2', width: 0.115, cssClass: 'seg-x2' },
+            { mult: 3, label: 'x3', width: 0.075, cssClass: 'seg-x3' },
+            { mult: 2, label: 'x2', width: 0.115, cssClass: 'seg-x2' }
           ];
         }
 
@@ -2307,8 +2286,8 @@
         bonusClock.classList.toggle('urgent', remainingMs <= 1250);
 
         if (elapsed >= BONUS_WINDOW_MS) {
-          const safeSeg = state.bonusSegments[0] || { index: 0, mult: 1, label: 'x1' };
-          freezeBonusAt(safeSeg, 'TIEMPO AGOTADO · ZONA X1');
+          const timeoutSafeSeg = { index: -1, mult: 1, label: 'x1' };
+          freezeBonusAt(timeoutSafeSeg, 'TIEMPO AGOTADO · X1');
           return;
         }
 
@@ -2467,8 +2446,6 @@
         tapButton.classList.remove('pressed');
 
         updateCadenceGauge(0, 'IDLE');
-        tapButtonLabel.textContent = 'INICIAR';
-        tapButtonSub.textContent = 'TOCÁ O PULSÁ ESPACIO (< 200 MS)';
         renderHud();
       }
 
@@ -2634,12 +2611,36 @@
         helpOverlay.classList.remove('open');
       });
 
+      dismissHelpForeverBtn.addEventListener('click', () => {
+        try {
+          localStorage.setItem(STORAGE_KEYS.HIDE_HELP_ON_START, '1');
+        } catch (_) {}
+        helpOverlay.classList.remove('open');
+      });
+
+      function maybeOpenHelpOnStart() {
+        try {
+          if (localStorage.getItem(STORAGE_KEYS.HIDE_HELP_ON_START) !== '1') {
+            helpOverlay.classList.add('open');
+          }
+        } catch (_) {
+          helpOverlay.classList.add('open');
+        }
+      }
+
       loadState();
       renderTopControls();
       updateCadenceGauge(0, 'IDLE');
       renderHud();
       refreshLeaderboardData(state.devicePlatform);
+      maybeOpenHelpOnStart();
     })();
   </script>
 </body>
 </html>
+```
+
+Actualicé `index.html` con todas las mejoras de UX acordadas:
+- **Pop-up automático al abrir:** muestra las reglas apenas carga la web (si no se marcó ocultar), con los botones **ENTENDIDO** (cierra solo por esta vez) y **NO VOLVER A MOSTRAR** (guarda la preferencia en `localStorage`, manteniendo el acceso manual desde **CÓMO SE JUEGA**).
+- **Reglas reescritas sin "reactor" ni "overdrive":** explican en 3 pasos claros que hay que hacer muchos clics seguidos (`< 200 ms`), cómo subir el **CPS** para desbloquear **X4** y **X5** (en PC y Móvil) y cómo frenar la barra láser final de 5 segundos.
+- **Botón principal dinámico y claro:** muestra **`¡TOCÁ SIN PARAR!`** / **`HACÉ MUCHOS CLICS SEGUIDOS (< 200 MS)`** en reposo, y al jugar cambia a **`¡SEGUÍ TOCANDO!`** indicando en vivo si estás acelerando para **X4**, si ya tenés **`¡X4 DESBLOQUEADO! · ACELERÁ PARA X5`** o **`¡X5 MÁXIMO DESBLOQUEADO!`**.
