@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#030712" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>OVERTAP // TRON EDITION</title>
+  <title>OVERTAP</title>
   <link rel="manifest" href="data:application/manifest+json;utf8,%7B%22name%22%3A%22OVERTAP%22%2C%22short_name%22%3A%22OVERTAP%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23030712%22%2C%22theme_color%22%3A%22%2300f3ff%22%7D" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -358,7 +358,7 @@
 
     .live-run-metrics {
       display: grid;
-      grid-template-columns: minmax(0, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
     }
 
@@ -455,36 +455,12 @@
     .cadence-header {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
       gap: 8px;
       font-size: 12px;
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-    }
-
-    .cadence-status {
-      padding: 3px 10px;
-      font-family: var(--font-display);
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 0.1em;
-      border: 1px solid var(--cyan);
-      color: var(--cyan);
-      background: rgba(0, 243, 255, 0.12);
-    }
-
-    .cadence-status.warn {
-      border-color: var(--gold);
-      color: var(--gold);
-      background: rgba(255, 230, 0, 0.14);
-    }
-
-    .cadence-status.danger {
-      border-color: var(--magenta);
-      color: #ff6699;
-      background: rgba(255, 0, 85, 0.2);
-      box-shadow: 0 0 10px rgba(255, 0, 85, 0.35);
     }
 
     .laser-gauge-track {
@@ -643,7 +619,7 @@
 
     .telemetry-footer {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
       padding: 10px 10px;
       background: rgba(2, 5, 14, 0.85);
@@ -1030,21 +1006,16 @@
       </div>
     </section>
 
-    <section class="cps-unlock-strip chamfer-sm" aria-label="Posición en ranking y umbrales CPS">
+    <section class="cps-unlock-strip chamfer-sm" aria-label="Posición en ranking y clics actuales">
       <div class="live-run-metrics">
         <div class="live-run-box chamfer-sm">
           <span class="hud-k">POSICIÓN EN RANKING</span>
           <span id="live-rank-val" class="live-run-val" style="color: var(--gold);">#--</span>
         </div>
-      </div>
-      <div class="cps-unlock-head">
-        <span id="platform-mode-label" style="color: var(--text-muted);">MODO PC</span>
-        <span id="next-threshold-label" style="color: var(--cyan);">8.5 CPS → DESBLOQUEA X4</span>
-      </div>
-      <div class="cps-milestones">
-        <div id="chip-t1" class="milestone-chip chamfer-sm unlocked-t1">BASE · TECHO X3</div>
-        <div id="chip-t2" class="milestone-chip chamfer-sm">≥ 8.5 CPS · TECHO X4</div>
-        <div id="chip-t3" class="milestone-chip chamfer-sm">≥ 12.0 CPS · TECHO X5</div>
+        <div class="live-run-box chamfer-sm">
+          <span class="hud-k">CLICS ACTUALES</span>
+          <span id="live-clicks-val" class="live-run-val">0</span>
+        </div>
       </div>
     </section>
 
@@ -1065,8 +1036,7 @@
 
       <div>
         <div class="cadence-header">
-          <span style="color: var(--text-muted);">VENTANA DE CADENCIA (200 MS)</span>
-          <span id="rhythm-tag" class="cadence-status chamfer-sm">EN ESPERA</span>
+          <span style="color: var(--text-muted);">VENTANA DE CADENCIA</span>
         </div>
         <div class="laser-gauge-track" aria-hidden="true">
           <div id="rhythm-bar-fill" class="laser-gauge-fill"></div>
@@ -1082,10 +1052,6 @@
         <div>
           <div class="tf-k">ÚLTIMO INTERVALO</div>
           <div id="interval-val" class="tf-v">-- MS</div>
-        </div>
-        <div>
-          <div class="tf-k">ESTADO REACTOR</div>
-          <div id="state-val" class="tf-v">LISTO</div>
         </div>
       </div>
     </main>
@@ -1212,7 +1178,6 @@
       <div style="display: flex; flex-direction: column; gap: 8px;">
         <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
           <span id="ranking-scope-label" class="hud-k" style="color: var(--text-muted);">TOP 10 · CATEGORÍA PC</span>
-          <button id="refresh-ranking-btn" type="button" class="cyber-btn chamfer-sm">ACTUALIZAR</button>
         </div>
         <div id="ranking-container" style="display: flex; flex-direction: column; gap: 6px;"></div>
       </div>
@@ -1549,23 +1514,17 @@
       const personalMaxVal = document.getElementById('personal-max-val');
       const personalMaxSub = document.getElementById('personal-max-sub');
       const liveRankVal = document.getElementById('live-rank-val');
-      const platformModeLabel = document.getElementById('platform-mode-label');
+      const liveClicksVal = document.getElementById('live-clicks-val');
       const cpsVal = document.getElementById('cps-val');
       const peakCpsSub = document.getElementById('peak-cps-sub');
 
-      const nextThresholdLabel = document.getElementById('next-threshold-label');
-      const chipT1 = document.getElementById('chip-t1');
-      const chipT2 = document.getElementById('chip-t2');
-      const chipT3 = document.getElementById('chip-t3');
       const recordAlert = document.getElementById('record-alert');
 
-      const rhythmTag = document.getElementById('rhythm-tag');
       const rhythmBarFill = document.getElementById('rhythm-bar-fill');
       const tapButton = document.getElementById('tap-button');
       const tapButtonLabel = document.getElementById('tap-button-label');
       const tapButtonSub = document.getElementById('tap-button-sub');
       const intervalVal = document.getElementById('interval-val');
-      const stateVal = document.getElementById('state-val');
 
       const bonusOverlay = document.getElementById('bonus-overlay');
       const bonusTierInfo = document.getElementById('bonus-tier-info');
@@ -1602,7 +1561,6 @@
       const tabRankingMobile = document.getElementById('tab-ranking-mobile');
       const rankingScopeLabel = document.getElementById('ranking-scope-label');
       const rankingContainer = document.getElementById('ranking-container');
-      const refreshRankingBtn = document.getElementById('refresh-ranking-btn');
 
       const helpOverlay = document.getElementById('help-overlay');
       const closeHelpBtn = document.getElementById('close-help-btn');
@@ -1668,11 +1626,11 @@
           .sort((a, b) => b.score - a.score);
       }
 
-      function computeRankPosition(points, platform = state.devicePlatform) {
+      function computeRankPosition(points, platform = state.devicePlatform, excludeSelf = false) {
         const rows = getPlatformLeaderboardRows(platform);
         const uid = state.googleUser && state.googleUser.uid ? state.googleUser.uid : null;
         const comparableScores = rows
-          .filter((row) => !(uid && row.uid === uid))
+          .filter((row) => !(excludeSelf && uid && row.uid === uid))
           .map((row) => row.score);
 
         let higherCount = 0;
@@ -1879,33 +1837,15 @@
       }
 
       function applyTierTheme(ceiling) {
-        const isMobile = state.devicePlatform === 'mobile';
-        const th = getCpsThresholds(state.devicePlatform);
         document.body.classList.remove('tier-t2', 'tier-t3');
         rhythmBarFill.classList.remove('tier2', 'tier3');
-        platformModeLabel.textContent = isMobile ? 'MODO MÓVIL' : 'MODO PC';
-        chipT1.className = 'milestone-chip chamfer-sm unlocked-t1';
-        chipT2.className = 'milestone-chip chamfer-sm';
-        chipT3.className = 'milestone-chip chamfer-sm';
-        chipT2.textContent = `≥ ${th.tier2Peak.toFixed(1)} CPS · TECHO X4`;
-        chipT3.textContent = `≥ ${th.tier3Peak.toFixed(1)} CPS · TECHO X5`;
 
         if (ceiling === 5) {
           document.body.classList.add('tier-t3');
           rhythmBarFill.classList.add('tier3');
-          chipT2.classList.add('unlocked-t2');
-          chipT3.classList.add('unlocked-t3');
-          nextThresholdLabel.textContent = 'TECHO MÁXIMO X5 DESBLOQUEADO';
-          nextThresholdLabel.style.color = 'var(--gold)';
         } else if (ceiling === 4) {
           document.body.classList.add('tier-t2');
           rhythmBarFill.classList.add('tier2');
-          chipT2.classList.add('unlocked-t2');
-          nextThresholdLabel.textContent = `${th.tier3Peak.toFixed(1)} CPS → DESBLOQUEA X5`;
-          nextThresholdLabel.style.color = 'var(--magenta)';
-        } else {
-          nextThresholdLabel.textContent = `${th.tier2Peak.toFixed(1)} CPS → DESBLOQUEA X4`;
-          nextThresholdLabel.style.color = 'var(--cyan)';
         }
       }
 
@@ -1938,18 +1878,14 @@
         }
 
         const currentLiveScore = state.phase === 'SUMMARY' ? state.multipliedResult : state.intenseClicks;
-        const liveRank = computeRankPosition(currentLiveScore, state.devicePlatform);
+        const liveRank = computeRankPosition(currentLiveScore, state.devicePlatform, false);
         liveRankVal.textContent = currentLiveScore > 0 ? `#${liveRank}` : '#--';
+        liveClicksVal.textContent = String(state.intenseClicks);
 
         cpsVal.textContent = `${state.cps.toFixed(1)} / ${state.peakCps.toFixed(1)}`;
         peakCpsSub.textContent = `Techo: x${state.unlockedCeiling}`;
 
         intervalVal.textContent = state.lastIntervalMs !== null ? `${Math.round(state.lastIntervalMs)} MS` : '-- MS';
-
-        if (state.phase === 'RUNNING') stateVal.textContent = 'ACTIVO';
-        else if (state.phase === 'BONUS') stateVal.textContent = 'BONUS 5S';
-        else if (state.phase === 'SUMMARY') stateVal.textContent = 'CERRADO';
-        else stateVal.textContent = 'LISTO';
 
         recordAlert.classList.toggle('show', state.beatRecordThisRound);
         applyTierTheme(state.unlockedCeiling);
@@ -1983,22 +1919,9 @@
         const clamped = Math.max(0, Math.min(1, ratio));
         rhythmBarFill.style.width = `${(clamped * 100).toFixed(1)}%`;
         rhythmBarFill.classList.remove('danger');
-        rhythmTag.classList.remove('warn', 'danger');
 
-        if (mode === 'IDLE') {
-          rhythmTag.textContent = 'EN ESPERA';
-        } else if (mode === 'BONUS') {
-          rhythmTag.textContent = 'CORTE LÁSER';
-          rhythmTag.classList.add('warn');
-        } else if (clamped <= 0.28) {
+        if (mode === 'RUNNING' && clamped <= 0.28) {
           rhythmBarFill.classList.add('danger');
-          rhythmTag.textContent = 'CRÍTICO';
-          rhythmTag.classList.add('danger');
-        } else if (clamped <= 0.56) {
-          rhythmTag.textContent = 'SOSTENÉ';
-          rhythmTag.classList.add('warn');
-        } else {
-          rhythmTag.textContent = 'EN CADENCIA';
         }
       }
 
@@ -2185,7 +2108,7 @@
               }
             }
             await refreshLeaderboardData(state.devicePlatform);
-            const updatedRank = computeRankPosition(finalScore, state.devicePlatform);
+            const updatedRank = computeRankPosition(finalScore, state.devicePlatform, true);
             summaryRankVal.textContent = `#${updatedRank}`;
             liveRankVal.textContent = `#${updatedRank}`;
           } catch (_) {}
@@ -2221,7 +2144,7 @@
         saveState();
         renderHud();
 
-        const roundRank = computeRankPosition(finalScore, state.devicePlatform);
+        const roundRank = computeRankPosition(finalScore, state.devicePlatform, true);
         summaryMultBadge.textContent = `MULT x${mult}`;
         summaryFinalVal.textContent = `${finalScore} PTS`;
         summaryMaxVal.textContent = `${state.googleUser ? state.personalMaxScore : state.maxScore} PTS`;
@@ -2697,10 +2620,6 @@
 
       closeRankingBtn.addEventListener('click', () => {
         rankingOverlay.classList.remove('open');
-      });
-
-      refreshRankingBtn.addEventListener('click', async () => {
-        await refreshLeaderboardData(state.rankingTab);
       });
 
       openHelpBtn.addEventListener('click', () => {
