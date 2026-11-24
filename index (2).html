@@ -1,0 +1,2726 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#030712" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>OVERTAP // TRON EDITION</title>
+  <link rel="manifest" href="data:application/manifest+json;utf8,%7B%22name%22%3A%22OVERTAP%22%2C%22short_name%22%3A%22OVERTAP%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23030712%22%2C%22theme_color%22%3A%22%2300f3ff%22%7D" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,600;0,700;0,800;1,700;1,800&family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --void-bg: #030712;
+      --obsidian-panel: rgba(7, 13, 28, 0.9);
+      --cyan: #00f3ff;
+      --cyan-dim: rgba(0, 243, 255, 0.22);
+      --cyan-glow: rgba(0, 243, 255, 0.55);
+      --magenta: #ff0055;
+      --magenta-dim: rgba(255, 0, 85, 0.24);
+      --magenta-glow: rgba(255, 0, 85, 0.55);
+      --gold: #ffe600;
+      --gold-dim: rgba(255, 230, 0, 0.24);
+      --gold-glow: rgba(255, 230, 0, 0.6);
+      --text-main: #f0f9ff;
+      --text-muted: #7dd3fc;
+      --text-slate: #94a3b8;
+      --active-accent: var(--cyan);
+      --active-glow: var(--cyan-glow);
+      --active-dim: var(--cyan-dim);
+      --font-display: 'Orbitron', sans-serif;
+      --font-tech: 'Rajdhani', 'Exo 2', sans-serif;
+    }
+
+    body.tier-t2 {
+      --active-accent: var(--magenta);
+      --active-glow: var(--magenta-glow);
+      --active-dim: var(--magenta-dim);
+    }
+
+    body.tier-t3 {
+      --active-accent: var(--gold);
+      --active-glow: var(--gold-glow);
+      --active-dim: var(--gold-dim);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background-color: var(--void-bg);
+      color: var(--text-main);
+      font-family: var(--font-tech);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 50% 18%, var(--active-dim), transparent 52%),
+        linear-gradient(180deg, rgba(0, 243, 255, 0.04) 0%, rgba(3, 7, 18, 0.92) 65%, #02040a 100%),
+        repeating-linear-gradient(
+          90deg,
+          rgba(0, 243, 255, 0.05) 0px,
+          rgba(0, 243, 255, 0.05) 1px,
+          transparent 1px,
+          transparent 44px
+        ),
+        repeating-linear-gradient(
+          0deg,
+          rgba(0, 243, 255, 0.05) 0px,
+          rgba(0, 243, 255, 0.05) 1px,
+          transparent 1px,
+          transparent 44px
+        );
+      transition: background 0.25s ease;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(255, 255, 255, 0.015) 0px,
+        rgba(255, 255, 255, 0.015) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+    }
+
+    .chamfer-sm {
+      clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    }
+
+    .chamfer-md {
+      clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+    }
+
+    .chamfer-lg {
+      clip-path: polygon(22px 0, calc(100% - 22px) 0, 100% 22px, 100% calc(100% - 22px), calc(100% - 22px) 100%, 22px 100%, 0 calc(100% - 22px), 0 22px);
+    }
+
+    .app-shell {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 780px;
+      min-height: 100dvh;
+      margin: 0 auto;
+      padding: 14px 14px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    @media (min-width: 640px) {
+      .app-shell {
+        padding: 12px 16px 20px;
+        gap: 12px;
+      }
+    }
+
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--obsidian-panel);
+      border: 1px solid rgba(0, 243, 255, 0.28);
+      box-shadow: 0 0 18px rgba(0, 243, 255, 0.12), inset 0 0 14px rgba(0, 243, 255, 0.06);
+    }
+
+    .bar-cluster {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 520px) {
+      .top-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .bar-cluster {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .cyber-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 40px;
+      padding: 8px 12px;
+      background: rgba(10, 20, 42, 0.92);
+      border: 1px solid rgba(0, 243, 255, 0.35);
+      color: var(--text-main);
+      font-family: var(--font-tech);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 0.1s ease, border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    .cyber-btn:hover {
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px rgba(0, 243, 255, 0.35);
+      background: rgba(0, 243, 255, 0.12);
+    }
+
+    .cyber-btn:active {
+      transform: scale(0.96);
+    }
+
+    .cyber-btn.active {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      background: rgba(0, 243, 255, 0.14);
+      box-shadow: inset 0 0 10px rgba(0, 243, 255, 0.22);
+    }
+
+    .hero-header {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 24px 20px;
+      background:
+        radial-gradient(circle at 50% 50%, var(--active-dim) 0%, transparent 72%),
+        linear-gradient(125deg, rgba(4, 11, 28, 0.98) 0%, rgba(10, 28, 60, 0.94) 50%, rgba(0, 243, 255, 0.16) 100%);
+      border: 2px solid var(--active-accent);
+      box-shadow: 0 0 34px var(--active-dim), inset 0 0 28px rgba(0, 243, 255, 0.12);
+      overflow: hidden;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .hero-header::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 6px;
+      background: var(--active-accent);
+      box-shadow: 0 0 18px var(--active-accent);
+    }
+
+    .hero-header::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 6px;
+      background: var(--active-accent);
+      box-shadow: 0 0 18px var(--active-accent);
+    }
+
+    .brand-title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: clamp(36px, 10.5vw, 68px);
+      font-weight: 900;
+      letter-spacing: clamp(0.08em, 2.2vw, 0.2em);
+      line-height: 0.96;
+      white-space: nowrap;
+      color: #ffffff;
+      text-shadow:
+        0 0 14px #ffffff,
+        0 0 28px var(--active-glow),
+        0 0 52px rgba(0, 243, 255, 0.55);
+      transform: skewX(-9deg);
+    }
+
+    .hud-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    .hud-grid.split-records {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .hud-module {
+      position: relative;
+      padding: 10px 14px;
+      background: var(--obsidian-panel);
+      border: 1px solid rgba(0, 243, 255, 0.24);
+      box-shadow: inset 0 0 12px rgba(0, 243, 255, 0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 2px;
+    }
+
+    .hud-module.highlight-gold {
+      border-color: rgba(255, 230, 0, 0.45);
+      box-shadow: inset 0 0 14px rgba(255, 230, 0, 0.08);
+    }
+
+    .hud-module.highlight-personal {
+      border-color: rgba(0, 243, 255, 0.5);
+      box-shadow: inset 0 0 14px rgba(0, 243, 255, 0.1);
+    }
+
+    .hud-k {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-slate);
+    }
+
+    .hud-v {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: clamp(20px, 4vw, 27px);
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+      color: #ffffff;
+    }
+
+    .hud-module.highlight-gold .hud-v {
+      color: var(--gold);
+      text-shadow: 0 0 10px rgba(255, 230, 0, 0.4);
+    }
+
+    .hud-module.highlight-personal .hud-v {
+      color: var(--cyan);
+      text-shadow: 0 0 10px rgba(0, 243, 255, 0.4);
+    }
+
+    .hud-sub {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cps-unlock-strip {
+      padding: 12px 14px;
+      background: var(--obsidian-panel);
+      border: 1px solid rgba(0, 243, 255, 0.25);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .cps-unlock-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .cps-milestones {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .live-run-metrics {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    .live-run-box {
+      padding: 8px 12px;
+      background: rgba(2, 5, 14, 0.88);
+      border: 1px solid rgba(0, 243, 255, 0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 2px;
+    }
+
+    .live-run-val {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: clamp(22px, 4.8vw, 30px);
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.05;
+      color: #ffffff;
+      text-shadow: 0 0 12px var(--active-glow);
+    }
+
+    .milestone-chip {
+      padding: 7px 6px;
+      text-align: center;
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 11px;
+      font-weight: 800;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      background: rgba(3, 7, 18, 0.75);
+      color: var(--text-slate);
+      transition: all 0.16s ease;
+    }
+
+    .milestone-chip.unlocked-t1 {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      background: rgba(0, 243, 255, 0.14);
+      box-shadow: 0 0 10px rgba(0, 243, 255, 0.25);
+    }
+
+    .milestone-chip.unlocked-t2 {
+      border-color: var(--magenta);
+      color: #ff6699;
+      background: rgba(255, 0, 85, 0.16);
+      box-shadow: 0 0 12px rgba(255, 0, 85, 0.3);
+    }
+
+    .milestone-chip.unlocked-t3 {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(255, 230, 0, 0.16);
+      box-shadow: 0 0 14px rgba(255, 230, 0, 0.35);
+    }
+
+    .record-banner {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 7px 12px;
+      background: rgba(255, 230, 0, 0.14);
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      box-shadow: 0 0 14px rgba(255, 230, 0, 0.25);
+    }
+
+    .record-banner.show {
+      display: flex;
+    }
+
+    .reactor-arena {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 14px;
+      background: var(--obsidian-panel);
+      border: 1px solid var(--active-accent);
+      box-shadow: 0 0 26px var(--active-dim), inset 0 0 24px rgba(0, 243, 255, 0.05);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .cadence-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .cadence-status {
+      padding: 3px 10px;
+      font-family: var(--font-display);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      background: rgba(0, 243, 255, 0.12);
+    }
+
+    .cadence-status.warn {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(255, 230, 0, 0.14);
+    }
+
+    .cadence-status.danger {
+      border-color: var(--magenta);
+      color: #ff6699;
+      background: rgba(255, 0, 85, 0.2);
+      box-shadow: 0 0 10px rgba(255, 0, 85, 0.35);
+    }
+
+    .laser-gauge-track {
+      position: relative;
+      width: 100%;
+      height: 16px;
+      background: #02050e;
+      border: 1px solid rgba(0, 243, 255, 0.35);
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .laser-gauge-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #0077ff 0%, var(--cyan) 100%);
+      box-shadow: 0 0 14px var(--cyan);
+    }
+
+    .laser-gauge-fill.tier2 {
+      background: linear-gradient(90deg, #990033 0%, var(--magenta) 100%);
+      box-shadow: 0 0 14px var(--magenta);
+    }
+
+    .laser-gauge-fill.tier3 {
+      background: linear-gradient(90deg, #ff7b00 0%, var(--gold) 100%);
+      box-shadow: 0 0 16px var(--gold);
+    }
+
+    .laser-gauge-fill.danger {
+      background: linear-gradient(90deg, #b3003b 0%, #ff0055 100%);
+      box-shadow: 0 0 16px var(--magenta);
+    }
+
+    .reactor-stage {
+      position: relative;
+      flex: 1;
+      min-height: 235px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 8px;
+    }
+
+    .orbital-ring {
+      position: absolute;
+      width: 248px;
+      height: 248px;
+      border-radius: 50%;
+      border: 1px dashed var(--active-accent);
+      opacity: 0.32;
+      pointer-events: none;
+      animation: spinSlow 16s linear infinite;
+    }
+
+    .orbital-ring.inner {
+      width: 210px;
+      height: 210px;
+      border-style: solid;
+      border-color: transparent var(--active-accent) transparent var(--active-accent);
+      opacity: 0.45;
+      animation: spinReverse 9s linear infinite;
+    }
+
+    @keyframes spinSlow {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes spinReverse {
+      to { transform: rotate(-360deg); }
+    }
+
+    #tap-button {
+      position: relative;
+      width: min(100%, 330px);
+      min-height: 184px;
+      border: 2px solid var(--active-accent);
+      background:
+        radial-gradient(circle at 50% 35%, var(--active-dim), rgba(4, 10, 24, 0.96) 72%),
+        linear-gradient(180deg, rgba(12, 24, 52, 0.95) 0%, rgba(3, 7, 18, 0.98) 100%);
+      color: #ffffff;
+      box-shadow:
+        0 0 28px var(--active-dim),
+        inset 0 0 24px var(--active-dim);
+      cursor: pointer;
+      touch-action: manipulation;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.04s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    #tap-button::before {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      clip-path: polygon(16px 0, calc(100% - 16px) 0, 100% 16px, 100% calc(100% - 16px), calc(100% - 16px) 100%, 16px 100%, 0 calc(100% - 16px), 0 16px);
+      pointer-events: none;
+    }
+
+    #tap-button.pressed {
+      transform: scale(0.95);
+      box-shadow: 0 0 38px var(--active-glow), inset 0 0 32px var(--active-glow);
+    }
+
+    .reactor-core-title {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: clamp(26px, 5vw, 33px);
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #ffffff;
+      text-shadow: 0 0 14px var(--active-glow);
+      transform: skewX(-6deg);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .reactor-core-sub {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--active-accent);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .cyber-pulse {
+      position: absolute;
+      width: 44px;
+      height: 44px;
+      border: 2px solid var(--active-accent);
+      box-shadow: 0 0 14px var(--active-glow);
+      transform: translate(-50%, -50%) rotate(45deg) scale(0.25);
+      pointer-events: none;
+      z-index: 1;
+      animation: cyberPulseAnim 0.42s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes cyberPulseAnim {
+      0% {
+        opacity: 0.95;
+        transform: translate(-50%, -50%) rotate(45deg) scale(0.25);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(45deg) scale(3.4);
+      }
+    }
+
+    .telemetry-footer {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      padding: 10px 10px;
+      background: rgba(2, 5, 14, 0.85);
+      border: 1px solid rgba(0, 243, 255, 0.2);
+      text-align: center;
+    }
+
+    .tf-k {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-slate);
+    }
+
+    .tf-v {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 14px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-main);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      background: rgba(2, 4, 12, 0.86);
+      backdrop-filter: blur(8px);
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .bonus-dialog {
+      width: 100%;
+      max-width: 720px;
+      min-height: min(92dvh, 620px);
+      padding: 16px 14px;
+      background: linear-gradient(180deg, #070e20 0%, #030712 100%);
+      border: 1.5px solid var(--active-accent);
+      box-shadow: 0 0 40px var(--active-dim), inset 0 0 28px rgba(0, 243, 255, 0.06);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .bonus-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .bonus-title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: clamp(18px, 4vw, 22px);
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #ffffff;
+      text-shadow: 0 0 12px var(--active-glow);
+    }
+
+    .bonus-timer-box {
+      padding: 6px 14px;
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 15px;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      color: var(--cyan);
+      background: rgba(0, 243, 255, 0.12);
+      border: 1px solid var(--cyan);
+      box-shadow: 0 0 12px rgba(0, 243, 255, 0.25);
+    }
+
+    .bonus-timer-box.urgent {
+      color: var(--magenta);
+      border-color: var(--magenta);
+      background: rgba(255, 0, 85, 0.18);
+      box-shadow: 0 0 14px rgba(255, 0, 85, 0.4);
+    }
+
+    .bonus-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      padding: 10px 12px;
+      background: rgba(2, 5, 14, 0.85);
+      border: 1px solid rgba(0, 243, 255, 0.22);
+    }
+
+    .track-stage {
+      position: relative;
+      width: 100%;
+      padding-top: 34px;
+      margin: 4px 0;
+    }
+
+    .laser-track {
+      position: relative;
+      width: 100%;
+      height: 104px;
+      background: #02050e;
+      border: 2px solid var(--active-accent);
+      box-shadow: 0 0 22px var(--active-dim), inset 0 0 16px rgba(0, 0, 0, 0.85);
+      overflow: hidden;
+    }
+
+    @media (min-width: 640px) {
+      .laser-track {
+        height: 92px;
+      }
+    }
+
+    .zones-grid {
+      display: grid;
+      width: 100%;
+      height: 100%;
+    }
+
+    .zone-seg {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.01em;
+      border-right: 1px solid rgba(3, 7, 18, 0.75);
+      overflow: hidden;
+      transition: filter 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .zone-seg:last-child {
+      border-right: none;
+    }
+
+    .zone-seg.hit-glow {
+      filter: brightness(1.35);
+      box-shadow: inset 0 0 16px #ffffff;
+      z-index: 2;
+    }
+
+    .seg-x1 {
+      background: rgba(15, 23, 42, 0.92);
+      color: #94a3b8;
+    }
+
+    .seg-x15 {
+      background: rgba(14, 116, 144, 0.55);
+      color: #a5f3fc;
+    }
+
+    .seg-x2 {
+      background: rgba(0, 184, 212, 0.62);
+      color: #ecfeff;
+    }
+
+    .seg-x3 {
+      background: rgba(124, 58, 237, 0.72);
+      color: #ede9fe;
+    }
+
+    .seg-x4 {
+      background: rgba(255, 0, 85, 0.78);
+      color: #ffffff;
+      box-shadow: inset 0 0 8px rgba(255, 128, 171, 0.7);
+    }
+
+    .seg-x5 {
+      background: linear-gradient(180deg, #ffe600 0%, #ff9900 100%);
+      color: #030712;
+      box-shadow: inset 0 0 10px #ffffff;
+    }
+
+    .laser-cursor {
+      position: absolute;
+      top: -6px;
+      bottom: -6px;
+      width: 6px;
+      left: 5%;
+      transform: translateX(-50%);
+      background: #ffffff;
+      box-shadow:
+        0 0 10px #ffffff,
+        0 0 22px var(--cyan),
+        0 0 34px var(--cyan);
+      z-index: 6;
+      pointer-events: none;
+    }
+
+    .laser-cursor.frozen {
+      width: 10px;
+      background: var(--gold);
+      box-shadow:
+        0 0 12px #ffffff,
+        0 0 26px var(--gold),
+        0 0 42px var(--magenta);
+    }
+
+    .frozen-pin {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      padding: 4px 11px;
+      background: var(--gold);
+      color: #030712;
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      box-shadow: 0 0 18px rgba(255, 230, 0, 0.75);
+      z-index: 9;
+      pointer-events: none;
+    }
+
+    .frozen-pin.show {
+      display: block;
+    }
+
+    .frozen-outcome-panel {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 12px 14px;
+      background: rgba(255, 230, 0, 0.1);
+      border: 1.5px solid var(--gold);
+      box-shadow: 0 0 24px rgba(255, 230, 0, 0.25);
+      text-align: center;
+    }
+
+    .frozen-outcome-panel.show {
+      display: flex;
+    }
+
+    .frozen-outcome-k {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .frozen-outcome-v {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: clamp(24px, 5vw, 32px);
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 0 14px rgba(255, 230, 0, 0.55);
+    }
+
+    .stop-zone {
+      display: flex;
+      justify-content: center;
+      padding-top: 4px;
+    }
+
+    #stop-laser-btn {
+      width: 100%;
+      max-width: 360px;
+      min-height: 62px;
+      border: 2px solid var(--magenta);
+      background: linear-gradient(180deg, rgba(255, 0, 85, 0.85) 0%, rgba(160, 0, 54, 0.95) 100%);
+      color: #ffffff;
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      box-shadow: 0 0 24px rgba(255, 0, 85, 0.45), inset 0 0 14px rgba(255, 255, 255, 0.22);
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    #stop-laser-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .dialog-card {
+      width: 100%;
+      max-width: 540px;
+      max-height: 88dvh;
+      overflow-y: auto;
+      padding: 20px;
+      background: linear-gradient(180deg, #070e20 0%, #030712 100%);
+      border: 1.5px solid var(--cyan);
+      box-shadow: 0 0 36px rgba(0, 243, 255, 0.24);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .btn-neon-primary {
+      min-height: 44px;
+      padding: 10px 18px;
+      border: 1.5px solid var(--cyan);
+      background: linear-gradient(180deg, rgba(0, 243, 255, 0.28) 0%, rgba(0, 140, 180, 0.45) 100%);
+      color: #ffffff;
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      box-shadow: 0 0 16px rgba(0, 243, 255, 0.3);
+      cursor: pointer;
+    }
+
+    .btn-neon-primary:hover {
+      background: rgba(0, 243, 255, 0.38);
+    }
+
+    .status-toast {
+      display: none;
+      padding: 8px 12px;
+      background: rgba(0, 243, 255, 0.12);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .status-toast.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="top-bar chamfer-sm" aria-label="Controles del sistema">
+      <div class="bar-cluster" style="width: 100%; justify-content: space-between;">
+        <button id="google-auth-btn" type="button" class="cyber-btn chamfer-sm">
+          <span>👤</span>
+          <span id="google-auth-text">ENTRAR CON GOOGLE</span>
+        </button>
+        <button id="open-help-btn" type="button" class="cyber-btn chamfer-sm">
+          <span>❔</span>
+          <span>CÓMO SE JUEGA</span>
+        </button>
+        <button id="open-ranking-btn" type="button" class="cyber-btn chamfer-sm">
+          <span>🏆</span>
+          <span>RANKING</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="hero-header chamfer-md" aria-label="Cabecera Overtap">
+      <h1 class="brand-title">OVERTAP</h1>
+    </section>
+
+    <section id="records-hud-grid" class="hud-grid" aria-label="Telemetría en vivo">
+      <div id="global-record-card" class="hud-module chamfer-sm highlight-gold">
+        <span id="global-record-label" class="hud-k">MÁXIMO OBTENIDO</span>
+        <strong id="max-score-val" class="hud-v">0</strong>
+        <span id="max-sub" class="hud-sub">Sin marca aún</span>
+      </div>
+
+      <div id="personal-record-card" class="hud-module chamfer-sm highlight-personal" style="display: none;">
+        <span id="personal-record-label" class="hud-k">MÁXIMO PERSONAL</span>
+        <strong id="personal-max-val" class="hud-v">0</strong>
+        <span id="personal-max-sub" class="hud-sub">Sin marca aún</span>
+      </div>
+    </section>
+
+    <section class="cps-unlock-strip chamfer-sm" aria-label="Posición en ranking y umbrales CPS">
+      <div class="live-run-metrics">
+        <div class="live-run-box chamfer-sm">
+          <span class="hud-k">POSICIÓN EN RANKING</span>
+          <span id="live-rank-val" class="live-run-val" style="color: var(--gold);">#--</span>
+        </div>
+      </div>
+      <div class="cps-unlock-head">
+        <span id="platform-mode-label" style="color: var(--text-muted);">MODO PC</span>
+        <span id="next-threshold-label" style="color: var(--cyan);">8.5 CPS → DESBLOQUEA X4</span>
+      </div>
+      <div class="cps-milestones">
+        <div id="chip-t1" class="milestone-chip chamfer-sm unlocked-t1">BASE · TECHO X3</div>
+        <div id="chip-t2" class="milestone-chip chamfer-sm">≥ 8.5 CPS · TECHO X4</div>
+        <div id="chip-t3" class="milestone-chip chamfer-sm">≥ 12.0 CPS · TECHO X5</div>
+      </div>
+    </section>
+
+    <div id="record-alert" class="record-banner chamfer-sm" role="status">
+      <span>★ NUEVO RÉCORD DE PUNTUACIÓN SUPERADO ★</span>
+    </div>
+
+    <main class="reactor-arena chamfer-md">
+      <div class="reactor-stage">
+        <div class="orbital-ring" aria-hidden="true"></div>
+        <div class="orbital-ring inner" aria-hidden="true"></div>
+
+        <button id="tap-button" type="button" class="chamfer-lg" aria-label="Reactor de clics Overtap">
+          <span id="tap-button-label" class="reactor-core-title">INICIAR</span>
+          <span id="tap-button-sub" class="reactor-core-sub">TOCÁ O PULSÁ ESPACIO (&lt; 200 MS)</span>
+        </button>
+      </div>
+
+      <div>
+        <div class="cadence-header">
+          <span style="color: var(--text-muted);">VENTANA DE CADENCIA (200 MS)</span>
+          <span id="rhythm-tag" class="cadence-status chamfer-sm">EN ESPERA</span>
+        </div>
+        <div class="laser-gauge-track" aria-hidden="true">
+          <div id="rhythm-bar-fill" class="laser-gauge-fill"></div>
+        </div>
+      </div>
+
+      <div class="telemetry-footer chamfer-sm">
+        <div>
+          <div class="tf-k">CPS ACTUAL / PICO</div>
+          <div id="cps-val" class="tf-v">0.0 / 0.0</div>
+          <div id="peak-cps-sub" style="font-size: 10px; font-weight: 700; color: var(--text-muted);">Techo: x3</div>
+        </div>
+        <div>
+          <div class="tf-k">ÚLTIMO INTERVALO</div>
+          <div id="interval-val" class="tf-v">-- MS</div>
+        </div>
+        <div>
+          <div class="tf-k">ESTADO REACTOR</div>
+          <div id="state-val" class="tf-v">LISTO</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="bonus-overlay" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="bonus-heading">
+    <div class="bonus-dialog chamfer-md">
+      <div class="bonus-top">
+        <div>
+          <h2 id="bonus-heading" class="bonus-title">CORTE DE PRECISIÓN LÁSER</h2>
+          <span id="bonus-tier-info" style="font-size: 12px; font-weight: 700; letter-spacing: 0.06em; color: var(--active-accent);">
+            TECHO DESBLOQUEADO POR CPS: X3
+          </span>
+        </div>
+        <span id="bonus-clock" class="bonus-timer-box chamfer-sm">5.0S</span>
+      </div>
+
+      <div class="bonus-metrics chamfer-sm">
+        <div>
+          <div class="hud-k">CLICS BASE</div>
+          <div id="bonus-clicks-val" style="font-family: var(--font-display); font-style: italic; font-size: 20px; font-weight: 900; color: #ffffff;">0</div>
+        </div>
+        <div>
+          <div class="hud-k">PICO CPS</div>
+          <div id="bonus-peak-cps-val" style="font-family: var(--font-display); font-style: italic; font-size: 20px; font-weight: 900; color: var(--cyan);">0.0</div>
+        </div>
+        <div>
+          <div class="hud-k">ZONA ACTUAL</div>
+          <div id="bonus-mult-val" style="font-family: var(--font-display); font-style: italic; font-size: 20px; font-weight: 900; color: var(--gold);">x1</div>
+        </div>
+      </div>
+
+      <div class="track-stage">
+        <div id="frozen-pin" class="frozen-pin chamfer-sm">FRENADO · x1</div>
+        <div class="laser-track" aria-label="Barra láser de multiplicadores">
+          <div id="bonus-zones" class="zones-grid"></div>
+          <div id="light-marker" class="laser-cursor"></div>
+        </div>
+        <p id="bonus-caption" style="margin: 8px 0 0; text-align: center; font-size: 12px; font-weight: 700; color: var(--text-muted);">
+          FRENÁ EL LÁSER ANTES DE 5.0S (TOQUE O ESPACIO). LAS ZONAS X1 LATERALES PROTEGEN TUS CLICS.
+        </p>
+      </div>
+
+      <div id="frozen-outcome-panel" class="frozen-outcome-panel chamfer-sm" aria-live="polite">
+        <span id="frozen-zone-label" class="frozen-outcome-k">LÁSER CONGELADO EN X1</span>
+        <strong id="frozen-final-score" class="frozen-outcome-v">0 PTS</strong>
+      </div>
+
+      <div class="stop-zone">
+        <button id="stop-laser-btn" type="button" class="chamfer-md">FRENAR LÁSER</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="summary-overlay" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="summary-heading">
+    <div class="dialog-card chamfer-md">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+        <h2 id="summary-heading" style="margin: 0; font-family: var(--font-display); font-style: italic; font-size: 20px; font-weight: 900; color: #ffffff;">
+          RONDA COMPLETADA
+        </h2>
+        <span id="summary-mult-badge" class="chamfer-sm" style="padding: 4px 12px; background: rgba(0, 243, 255, 0.16); border: 1px solid var(--cyan); font-family: var(--font-display); font-size: 12px; font-weight: 900; color: var(--cyan);">
+          x1
+        </span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 12px; background: #02050e; border: 1px solid rgba(0, 243, 255, 0.25);">
+        <div>
+          <div class="hud-k">PUNTUACIÓN FINAL</div>
+          <div id="summary-final-val" style="font-family: var(--font-display); font-style: italic; font-size: 24px; font-weight: 900; color: var(--cyan);">0</div>
+        </div>
+        <div>
+          <div class="hud-k">MÁXIMO OBTENIDO</div>
+          <div id="summary-max-val" style="font-family: var(--font-display); font-style: italic; font-size: 24px; font-weight: 900; color: var(--gold);">0</div>
+        </div>
+        <div>
+          <div class="hud-k">CLICS INTENSOS</div>
+          <div id="summary-clicks-val" style="font-family: var(--font-display); font-size: 16px; font-weight: 800; color: #ffffff;">0</div>
+        </div>
+        <div>
+          <div class="hud-k">PICO CPS / TECHO</div>
+          <div id="summary-stats-val" style="font-family: var(--font-display); font-size: 16px; font-weight: 800; color: #ffffff;">0.0 / X3</div>
+        </div>
+        <div style="grid-column: span 2; padding-top: 6px; border-top: 1px solid rgba(0, 243, 255, 0.18); display: flex; align-items: center; justify-content: space-between;">
+          <span class="hud-k">POSICIÓN EN EL RANKING</span>
+          <span id="summary-rank-val" style="font-family: var(--font-display); font-style: italic; font-size: 18px; font-weight: 900; color: var(--gold);">#--</span>
+        </div>
+      </div>
+
+      <div id="summary-notice" class="status-toast chamfer-sm"></div>
+
+      <div id="summary-login-box" style="display: none;">
+        <button id="summary-google-login-btn" type="button" class="cyber-btn chamfer-sm active" style="width: 100%; min-height: 44px;">
+          <span>👤</span>
+          <span>ENTRAR CON GOOGLE Y SUBIR RÉCORD</span>
+        </button>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; margin-top: 4px;">
+        <button id="play-again-btn" type="button" class="btn-neon-primary chamfer-sm">NUEVA PARTIDA</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="ranking-overlay" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="ranking-heading">
+    <div class="dialog-card chamfer-md">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+        <h2 id="ranking-heading" style="margin: 0; font-family: var(--font-display); font-size: 18px; font-weight: 900; color: var(--cyan);">
+          RANKING GLOBAL
+        </h2>
+        <button id="close-ranking-btn" type="button" class="cyber-btn chamfer-sm">CERRAR</button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;">
+        <button id="tab-ranking-pc" type="button" class="cyber-btn chamfer-sm active">
+          <span>💻</span>
+          <span>PC</span>
+        </button>
+        <button id="tab-ranking-mobile" type="button" class="cyber-btn chamfer-sm">
+          <span>📱</span>
+          <span>MÓVIL</span>
+        </button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+          <span id="ranking-scope-label" class="hud-k" style="color: var(--text-muted);">TOP 10 · CATEGORÍA PC</span>
+          <button id="refresh-ranking-btn" type="button" class="cyber-btn chamfer-sm">ACTUALIZAR</button>
+        </div>
+        <div id="ranking-container" style="display: flex; flex-direction: column; gap: 6px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="help-overlay" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="help-heading">
+    <div class="dialog-card chamfer-md">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+        <h2 id="help-heading" style="margin: 0; font-family: var(--font-display); font-style: italic; font-size: 18px; font-weight: 900; color: var(--cyan);">
+          CÓMO SE JUEGA · OVERTAP
+        </h2>
+        <button id="close-help-btn" type="button" class="cyber-btn chamfer-sm">CERRAR</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px; line-height: 1.45; color: var(--text-main);">
+        <div style="padding: 10px 12px; background: #02050e; border: 1px solid rgba(0, 243, 255, 0.25);">
+          <div style="font-family: var(--font-display); font-size: 12px; font-weight: 800; color: var(--cyan); margin-bottom: 4px;">
+            1. CARGA DEL REACTOR (&lt; 200 MS)
+          </div>
+          <p style="margin: 0; color: var(--text-slate);">
+            Tocá el reactor o pulsá <strong>ESPACIO</strong> sin dejar pasar más de <strong>200 ms</strong> entre clics. Cada toque suma 1 punto base y alimenta tu velocidad en <strong>CPS</strong> (clics por segundo).
+          </p>
+        </div>
+
+        <div style="padding: 10px 12px; background: #02050e; border: 1px solid rgba(255, 0, 85, 0.35);">
+          <div style="font-family: var(--font-display); font-size: 12px; font-weight: 800; color: #ff6699; margin-bottom: 4px;">
+            2. TECHOS DE VELOCIDAD Y DIFERENCIAS PC VS MÓVIL
+          </div>
+          <p style="margin: 0 0 6px; color: var(--text-slate);">
+            A mayor velocidad de CPS, desbloqueás techos multiplicadores más altos para la barra final (<strong>X3</strong> base, <strong>X4</strong> medio y <strong>X5</strong> máximo):
+          </p>
+          <ul style="margin: 0; padding-left: 18px; color: var(--text-main);">
+            <li><strong>💻 Modo PC:</strong> Base <strong>X3</strong> · Zona media <strong>X4</strong> desde <strong>8.5 CPS</strong> · Zona máxima <strong>X5</strong> desde <strong>12.0 CPS</strong>.</li>
+            <li><strong>📱 Modo Móvil (táctil):</strong> Base <strong>X3</strong> · Zona media <strong>X4</strong> desde <strong>10.5 CPS</strong> · Zona máxima <strong>X5</strong> al alcanzar <strong>14.0 CPS</strong>.</li>
+          </ul>
+        </div>
+
+        <div style="padding: 10px 12px; background: #02050e; border: 1px solid rgba(255, 230, 0, 0.35);">
+          <div style="font-family: var(--font-display); font-size: 12px; font-weight: 800; color: var(--gold); margin-bottom: 4px;">
+            3. CORTE DE PRECISIÓN LÁSER (FINAL DE 5.0S)
+          </div>
+          <p style="margin: 0; color: var(--text-slate);">
+            Cuando el intervalo supera los 200 ms, se activa el <strong>Corte Láser</strong> durante <strong>5 segundos</strong>. Frená el haz en el centro para multiplicar tus clics hasta el techo que hayas desbloqueado (<strong>x1.5</strong> a <strong>x5</strong>). Si no frenás a tiempo o caés en los bordes, conservás tus clics con <strong>x1</strong>.
+          </p>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end;">
+        <button id="close-help-footer-btn" type="button" class="btn-neon-primary chamfer-sm">ENTENDIDO</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js';
+    import {
+      getAuth,
+      GoogleAuthProvider,
+      signInWithPopup,
+      signOut,
+      onAuthStateChanged
+    } from 'https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js';
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc,
+      collection,
+      query,
+      orderBy,
+      limit,
+      getDocs,
+      serverTimestamp
+    } from 'https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: 'AIzaSyD5wywLdsKMeNVOTePRwbPwssSi80XwCA4',
+      authDomain: 'click-rush-game.firebaseapp.com',
+      projectId: 'click-rush-game',
+      storageBucket: 'click-rush-game.firebasestorage.app',
+      messagingSenderId: '747486198195',
+      appId: '1:747486198195:web:10204cd4e82febf9a333c6',
+      measurementId: 'G-EDKYNFY8JJ'
+    };
+
+    const firebaseApp = initializeApp(firebaseConfig);
+    const auth = getAuth(firebaseApp);
+    const db = getFirestore(firebaseApp);
+    const googleProvider = new GoogleAuthProvider();
+
+    function getCollectionForPlatform(platform) {
+      return platform === 'mobile' ? 'leaderboard_mobile' : 'leaderboard_pc';
+    }
+
+    window.OvertapFirebase = {
+      auth,
+      db,
+      currentUser: null,
+      async signInWithGoogle() {
+        const result = await signInWithPopup(auth, googleProvider);
+        return result.user;
+      },
+      async signOutUser() {
+        await signOut(auth);
+      },
+      async fetchGlobalTop(platform = 'pc', maxRows = 10) {
+        const colName = getCollectionForPlatform(platform);
+        const q = query(
+          collection(db, colName),
+          orderBy('score', 'desc'),
+          limit(maxRows)
+        );
+        const snap = await getDocs(q);
+        const rows = [];
+        snap.forEach((docSnap) => {
+          rows.push({ uid: docSnap.id, ...docSnap.data() });
+        });
+        return rows;
+      },
+      async fetchPersonalBest(platform = 'pc', uid = '') {
+        if (!uid) return null;
+        const colName = getCollectionForPlatform(platform);
+        const snap = await getDoc(doc(db, colName, uid));
+        return snap.exists() ? { uid: snap.id, ...snap.data() } : null;
+      },
+      async upsertPlayerScore(entry, telemetry) {
+        const user = auth.currentUser;
+        const platform = entry.platform === 'mobile' ? 'mobile' : 'pc';
+        const platformLabel = platform === 'mobile' ? 'MÓVIL' : 'PC';
+
+        if (!user) {
+          return { ok: false, reason: 'NOT_SIGNED_IN', msg: '' };
+        }
+        if (telemetry.integrityStatus !== 'clean') {
+          return { ok: false, reason: 'FLAGGED', msg: '' };
+        }
+
+        const colName = getCollectionForPlatform(platform);
+        const playerRef = doc(db, colName, user.uid);
+        const existing = await getDoc(playerRef);
+        const prevScore = existing.exists() && typeof existing.data().score === 'number'
+          ? existing.data().score
+          : -1;
+
+        if (entry.score <= prevScore) {
+          return {
+            ok: true,
+            updated: false,
+            personalBest: Math.max(0, prevScore),
+            msg: `TU RÉCORD GLOBAL (${platformLabel}) SIGUE SIENDO ${prevScore} PTS.`
+          };
+        }
+
+        const displayName = (entry.name || user.displayName || 'PILOTO').slice(0, 24);
+        await setDoc(playerRef, {
+          uid: user.uid,
+          name: displayName,
+          photoURL: user.photoURL || '',
+          countryCode: entry.countryCode || '',
+          platform,
+          score: entry.score,
+          clicks: entry.clicks,
+          mult: entry.mult,
+          peakCps: entry.peakCps,
+          ceiling: entry.ceiling,
+          integrityStatus: telemetry.integrityStatus,
+          updatedAt: serverTimestamp()
+        });
+
+        return {
+          ok: true,
+          updated: true,
+          personalBest: entry.score,
+          msg: `¡NUEVO RÉCORD GLOBAL (${platformLabel}) GUARDADO (${entry.score} PTS)!`
+        };
+      }
+    };
+
+    window.ClickRushFirebase = window.OvertapFirebase;
+
+    onAuthStateChanged(auth, (user) => {
+      window.OvertapFirebase.currentUser = user || null;
+      window.dispatchEvent(new CustomEvent('overtap-auth-changed', { detail: { user: user || null } }));
+      window.dispatchEvent(new CustomEvent('clickrush-auth-changed', { detail: { user: user || null } }));
+    });
+  </script>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const RHYTHM_CUTOFF_MS = 200;
+      const BONUS_WINDOW_MS = 5000;
+      const FREEZE_INSPECT_MS = 1350;
+      const BONUS_ARM_GUARD_MS = 480;
+      const POST_ROUND_LOCK_MS = 350;
+      const DEFAULT_DEDUPE_MS = 25;
+      const CPS_THRESHOLDS = {
+        pc: { tier2Peak: 8.5, tier3Peak: 12.0 },
+        mobile: { tier2Peak: 10.5, tier3Peak: 14.0 }
+      };
+
+      const TIMEZONE_TO_COUNTRY = {
+        'America/Argentina/Buenos_Aires': 'AR',
+        'America/Buenos_Aires': 'AR',
+        'America/Cordoba': 'AR',
+        'America/Rosario': 'AR',
+        'America/Mendoza': 'AR',
+        'America/Montevideo': 'UY',
+        'America/Santiago': 'CL',
+        'America/Sao_Paulo': 'BR',
+        'America/Bogota': 'CO',
+        'America/Lima': 'PE',
+        'America/Mexico_City': 'MX',
+        'America/Caracas': 'VE',
+        'America/La_Paz': 'BO',
+        'America/Asuncion': 'PY',
+        'America/Guayaquil': 'EC',
+        'Europe/Madrid': 'ES',
+        'America/New_York': 'US',
+        'America/Chicago': 'US',
+        'America/Denver': 'US',
+        'America/Los_Angeles': 'US'
+      };
+
+      function detectCountryCode() {
+        try {
+          const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+          if (tz && TIMEZONE_TO_COUNTRY[tz]) {
+            return TIMEZONE_TO_COUNTRY[tz];
+          }
+          const langs = (navigator.languages && navigator.languages.length > 0)
+            ? navigator.languages
+            : [navigator.language || ''];
+          for (let i = 0; i < langs.length; i++) {
+            const parts = String(langs[i]).split('-');
+            if (parts.length > 1 && /^[A-Za-z]{2}$/.test(parts[1])) {
+              return parts[1].toUpperCase();
+            }
+          }
+        } catch (_) {}
+        return '';
+      }
+
+      function countryCodeToFlag(code) {
+        const clean = String(code || '').trim().toUpperCase();
+        if (!/^[A-Z]{2}$/.test(clean)) return '🌐';
+        const codePoints = clean.split('').map((ch) => 127397 + ch.charCodeAt(0));
+        return String.fromCodePoint(...codePoints);
+      }
+
+      function detectDevicePlatform() {
+        const isTouchCapable =
+          (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0) ||
+          (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+        const isMobileUa =
+          typeof navigator !== 'undefined' &&
+          /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        return isTouchCapable || isMobileUa ? 'mobile' : 'pc';
+      }
+
+      function getCpsThresholds(platform = detectDevicePlatform()) {
+        return platform === 'mobile' ? CPS_THRESHOLDS.mobile : CPS_THRESHOLDS.pc;
+      }
+
+      const STORAGE_KEYS = {
+        MAX_SCORE: 'overtap_tron_max_v1',
+        PERSONAL_MAX_SCORE: 'overtap_tron_personal_max_v1',
+        ALIAS: 'overtap_tron_alias_v1',
+        DEDUPE: 'overtap_tron_dedupe_v1',
+        RANKING: 'overtap_tron_ranking_v1',
+        SOUND_PACK: 'overtap_tron_sound_pack_v1',
+        ROUNDS_PLAYED: 'overtap_tron_rounds_v1'
+      };
+
+      const state = {
+        phase: 'IDLE',
+        intenseClicks: 0,
+        maxScore: 0,
+        personalMaxScore: 0,
+        googleUser: null,
+        countryCode: detectCountryCode(),
+        beatRecordThisRound: false,
+        lastTapAt: 0,
+        lastIntervalMs: null,
+        tapTimestamps: [],
+        intervalsMs: [],
+        devicePlatform: detectDevicePlatform(),
+        rankingTab: detectDevicePlatform(),
+        roundStartedAt: 0,
+        cps: 0,
+        peakCps: 0,
+        unlockedCeiling: 3,
+        bonusMultiplier: 1,
+        multipliedResult: 0,
+        lastTelemetry: null,
+        summaryOpenedAt: 0,
+        dedupeMs: DEFAULT_DEDUPE_MS,
+        soundOn: true,
+        hapticOn: true,
+        soundPack: 'tron_synth',
+        roundsPlayed: 0,
+        alias: 'PILOTO_01',
+        ranking: [],
+        globalRankingByPlatform: {
+          pc: [],
+          mobile: []
+        },
+        rhythmRaf: null,
+        bonusRaf: null,
+        bonusStartedAt: 0,
+        bonusArmedAt: 0,
+        bonusLocked: false,
+        markerPos: 0.05,
+        markerDir: 1,
+        markerSpeed: 1.85,
+        lastTickZoneIdx: -1,
+        bonusSegments: [],
+        freezeTimeout: null,
+        audioCtx: null
+      };
+
+      const googleAuthBtn = document.getElementById('google-auth-btn');
+      const googleAuthText = document.getElementById('google-auth-text');
+      const openHelpBtn = document.getElementById('open-help-btn');
+      const openRankingBtn = document.getElementById('open-ranking-btn');
+
+      const recordsHudGrid = document.getElementById('records-hud-grid');
+      const globalRecordLabel = document.getElementById('global-record-label');
+      const maxScoreVal = document.getElementById('max-score-val');
+      const maxSub = document.getElementById('max-sub');
+      const personalRecordCard = document.getElementById('personal-record-card');
+      const personalMaxVal = document.getElementById('personal-max-val');
+      const personalMaxSub = document.getElementById('personal-max-sub');
+      const liveRankVal = document.getElementById('live-rank-val');
+      const platformModeLabel = document.getElementById('platform-mode-label');
+      const cpsVal = document.getElementById('cps-val');
+      const peakCpsSub = document.getElementById('peak-cps-sub');
+
+      const nextThresholdLabel = document.getElementById('next-threshold-label');
+      const chipT1 = document.getElementById('chip-t1');
+      const chipT2 = document.getElementById('chip-t2');
+      const chipT3 = document.getElementById('chip-t3');
+      const recordAlert = document.getElementById('record-alert');
+
+      const rhythmTag = document.getElementById('rhythm-tag');
+      const rhythmBarFill = document.getElementById('rhythm-bar-fill');
+      const tapButton = document.getElementById('tap-button');
+      const tapButtonLabel = document.getElementById('tap-button-label');
+      const tapButtonSub = document.getElementById('tap-button-sub');
+      const intervalVal = document.getElementById('interval-val');
+      const stateVal = document.getElementById('state-val');
+
+      const bonusOverlay = document.getElementById('bonus-overlay');
+      const bonusTierInfo = document.getElementById('bonus-tier-info');
+      const bonusClock = document.getElementById('bonus-clock');
+      const bonusClicksVal = document.getElementById('bonus-clicks-val');
+      const bonusPeakCpsVal = document.getElementById('bonus-peak-cps-val');
+      const bonusMultVal = document.getElementById('bonus-mult-val');
+      const trackStage = document.querySelector('.track-stage');
+      const laserTrack = document.querySelector('.laser-track');
+      const bonusZones = document.getElementById('bonus-zones');
+      const lightMarker = document.getElementById('light-marker');
+      const frozenPin = document.getElementById('frozen-pin');
+      const bonusCaption = document.getElementById('bonus-caption');
+      const frozenOutcomePanel = document.getElementById('frozen-outcome-panel');
+      const frozenZoneLabel = document.getElementById('frozen-zone-label');
+      const frozenFinalScore = document.getElementById('frozen-final-score');
+      const stopLaserBtn = document.getElementById('stop-laser-btn');
+
+      const summaryOverlay = document.getElementById('summary-overlay');
+      const summaryMultBadge = document.getElementById('summary-mult-badge');
+      const summaryFinalVal = document.getElementById('summary-final-val');
+      const summaryMaxVal = document.getElementById('summary-max-val');
+      const summaryClicksVal = document.getElementById('summary-clicks-val');
+      const summaryStatsVal = document.getElementById('summary-stats-val');
+      const summaryRankVal = document.getElementById('summary-rank-val');
+      const summaryNotice = document.getElementById('summary-notice');
+      const summaryLoginBox = document.getElementById('summary-login-box');
+      const summaryGoogleLoginBtn = document.getElementById('summary-google-login-btn');
+      const playAgainBtn = document.getElementById('play-again-btn');
+
+      const rankingOverlay = document.getElementById('ranking-overlay');
+      const closeRankingBtn = document.getElementById('close-ranking-btn');
+      const tabRankingPc = document.getElementById('tab-ranking-pc');
+      const tabRankingMobile = document.getElementById('tab-ranking-mobile');
+      const rankingScopeLabel = document.getElementById('ranking-scope-label');
+      const rankingContainer = document.getElementById('ranking-container');
+      const refreshRankingBtn = document.getElementById('refresh-ranking-btn');
+
+      const helpOverlay = document.getElementById('help-overlay');
+      const closeHelpBtn = document.getElementById('close-help-btn');
+      const closeHelpFooterBtn = document.getElementById('close-help-footer-btn');
+
+      function loadState() {
+        try {
+          const m = parseInt(localStorage.getItem(STORAGE_KEYS.MAX_SCORE) || '0', 10);
+          if (!Number.isNaN(m) && m >= 0) state.maxScore = m;
+
+          const pm = parseInt(localStorage.getItem(STORAGE_KEYS.PERSONAL_MAX_SCORE) || '0', 10);
+          if (!Number.isNaN(pm) && pm >= 0) {
+            state.personalMaxScore = pm;
+          } else if (state.maxScore > 0) {
+            state.personalMaxScore = state.maxScore;
+          }
+
+          const a = localStorage.getItem(STORAGE_KEYS.ALIAS);
+          if (a && a.trim()) state.alias = a.trim();
+
+          const d = parseInt(localStorage.getItem(STORAGE_KEYS.DEDUPE) || String(DEFAULT_DEDUPE_MS), 10);
+          if ([20, 25, 35, 55].includes(d)) state.dedupeMs = d;
+
+          const r = JSON.parse(localStorage.getItem(STORAGE_KEYS.RANKING) || '[]');
+          if (Array.isArray(r)) state.ranking = r;
+
+          state.soundOn = true;
+          state.hapticOn = true;
+
+          const sp = localStorage.getItem(STORAGE_KEYS.SOUND_PACK);
+          if (sp && ['tron_synth', 'retro_arcade', 'mech_switch'].includes(sp)) {
+            state.soundPack = sp;
+          }
+
+          const rp = parseInt(localStorage.getItem(STORAGE_KEYS.ROUNDS_PLAYED) || '0', 10);
+          if (!Number.isNaN(rp) && rp >= 0) state.roundsPlayed = rp;
+        } catch (err) {
+          console.warn('Error cargando localStorage:', err);
+        }
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEYS.MAX_SCORE, String(state.maxScore));
+          localStorage.setItem(STORAGE_KEYS.PERSONAL_MAX_SCORE, String(state.personalMaxScore));
+          localStorage.setItem(STORAGE_KEYS.ALIAS, state.alias);
+          localStorage.setItem(STORAGE_KEYS.DEDUPE, String(state.dedupeMs));
+          localStorage.setItem(STORAGE_KEYS.RANKING, JSON.stringify(state.ranking));
+          localStorage.setItem(STORAGE_KEYS.SOUND_PACK, state.soundPack);
+          localStorage.setItem(STORAGE_KEYS.ROUNDS_PLAYED, String(state.roundsPlayed));
+        } catch (err) {
+          console.warn('Error guardando localStorage:', err);
+        }
+      }
+
+      function getPlatformLeaderboardRows(platform = state.devicePlatform) {
+        const targetPlatform = platform === 'mobile' ? 'mobile' : 'pc';
+        const remoteRows = state.globalRankingByPlatform[targetPlatform] || [];
+        const localRows = state.ranking.filter((item) => (item.platform || 'pc') === targetPlatform);
+        const sourceList = remoteRows.length > 0 ? remoteRows : localRows;
+        return [...sourceList]
+          .filter((row) => typeof row.score === 'number')
+          .sort((a, b) => b.score - a.score);
+      }
+
+      function computeRankPosition(points, platform = state.devicePlatform) {
+        const rows = getPlatformLeaderboardRows(platform);
+        const uid = state.googleUser && state.googleUser.uid ? state.googleUser.uid : null;
+        const comparableScores = rows
+          .filter((row) => !(uid && row.uid === uid))
+          .map((row) => row.score);
+
+        let higherCount = 0;
+        for (let i = 0; i < comparableScores.length; i++) {
+          if (comparableScores[i] > points) {
+            higherCount += 1;
+          }
+        }
+        return higherCount + 1;
+      }
+
+      function buildSessionTelemetry(landedMultiplier, finalScore) {
+        const now = performance.now();
+        const durationMs = state.roundStartedAt > 0 ? Math.max(0, Math.round(now - state.roundStartedAt)) : 0;
+        const intervals = state.intervalsMs;
+        const avgIntervalMs =
+          intervals.length > 0
+            ? Number((intervals.reduce((a, b) => a + b, 0) / intervals.length).toFixed(2))
+            : 0;
+        const minIntervalMs = intervals.length > 0 ? Number(Math.min(...intervals).toFixed(2)) : 0;
+
+        let variance = 0;
+        if (intervals.length > 1) {
+          variance =
+            intervals.reduce((acc, v) => acc + Math.pow(v - avgIntervalMs, 2), 0) / intervals.length;
+        }
+        const stdDevMs = Number(Math.sqrt(variance).toFixed(2));
+        const avgCps = durationMs > 0 ? Number(((state.intenseClicks / durationMs) * 1000).toFixed(2)) : 0;
+
+        const flags = [];
+        const expectedScore = Math.round(state.intenseClicks * landedMultiplier);
+        if (finalScore !== expectedScore) flags.push('SCORE_MISMATCH');
+        if (landedMultiplier > state.unlockedCeiling) flags.push('CEILING_EXCEEDED');
+        const maxPeakAllowed = state.devicePlatform === 'mobile' ? 32 : 20;
+        const maxAvgAllowed = state.devicePlatform === 'mobile' ? 28 : 18;
+        if (state.peakCps > maxPeakAllowed || avgCps > maxAvgAllowed) flags.push('CPS_OUT_OF_RANGE');
+        if (intervals.length >= 12 && stdDevMs < 1.2) flags.push('ROBOTIC_INTERVAL_STDDEV');
+
+        return {
+          schemaVersion: '1.0',
+          baseClicks: state.intenseClicks,
+          durationMs,
+          avgIntervalMs,
+          minIntervalMs,
+          stdDevMs,
+          peakCps: Number(state.peakCps.toFixed(2)),
+          avgCps,
+          unlockedCeiling: state.unlockedCeiling,
+          landedMultiplier,
+          finalScore,
+          integrityStatus: flags.length === 0 ? 'clean' : 'flagged',
+          flags
+        };
+      }
+
+      function getAudioContext() {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return null;
+        if (!state.audioCtx) state.audioCtx = new Ctx();
+        if (state.audioCtx.state === 'suspended') state.audioCtx.resume();
+        return state.audioCtx;
+      }
+
+      function playLaserPulse(cps, ceiling) {
+        if (!state.soundOn) return;
+        try {
+          const ctx = getAudioContext();
+          if (!ctx) return;
+          const now = ctx.currentTime;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          const baseFreq = ceiling === 5 ? 620 : ceiling === 4 ? 480 : 340;
+          const freq = baseFreq + Math.min(cps * 28, 420);
+
+          if (state.soundPack === 'retro_arcade') {
+            osc.type = 'square';
+          } else if (state.soundPack === 'mech_switch') {
+            osc.type = 'triangle';
+          } else {
+            osc.type = ceiling === 5 ? 'sawtooth' : 'triangle';
+          }
+
+          osc.frequency.setValueAtTime(freq, now);
+          osc.frequency.exponentialRampToValueAtTime(
+            state.soundPack === 'mech_switch' ? freq * 0.72 : freq * 1.35,
+            now + 0.042
+          );
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.exponentialRampToValueAtTime(0.06, now + 0.006);
+          gain.gain.exponentialRampToValueAtTime(0.0008, now + 0.048);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.052);
+        } catch (_) {}
+      }
+
+      function playTierUnlockSound(newCeiling) {
+        if (!state.soundOn) return;
+        try {
+          const ctx = getAudioContext();
+          if (!ctx) return;
+          const now = ctx.currentTime;
+          const notes = newCeiling === 5 ? [587.33, 880, 1174.66] : [440, 659.25];
+          notes.forEach((f, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(f, now + idx * 0.045);
+            gain.gain.setValueAtTime(0.001, now + idx * 0.045);
+            gain.gain.exponentialRampToValueAtTime(0.075, now + idx * 0.045 + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.0008, now + idx * 0.045 + 0.16);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.045);
+            osc.stop(now + idx * 0.045 + 0.18);
+          });
+        } catch (_) {}
+      }
+
+      function playCadenceBreakSound() {
+        if (!state.soundOn) return;
+        try {
+          const ctx = getAudioContext();
+          if (!ctx) return;
+          const now = ctx.currentTime;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.exponentialRampToValueAtTime(95, now + 0.28);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.31);
+        } catch (_) {}
+      }
+
+      function playLaserTick(mult) {
+        if (!state.soundOn) return;
+        try {
+          const ctx = getAudioContext();
+          if (!ctx) return;
+          const now = ctx.currentTime;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(280 + mult * 110, now);
+          gain.gain.setValueAtTime(0.03, now);
+          gain.gain.exponentialRampToValueAtTime(0.0008, now + 0.025);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.028);
+        } catch (_) {}
+      }
+
+      function playFreezeChord(mult) {
+        if (!state.soundOn) return;
+        try {
+          const ctx = getAudioContext();
+          if (!ctx) return;
+          const now = ctx.currentTime;
+          const freqs =
+            mult >= 5
+              ? [523.25, 659.25, 783.99, 1046.5]
+              : mult >= 4
+                ? [440, 554.37, 659.25, 880]
+                : mult >= 2
+                  ? [392, 493.88, 587.33]
+                  : [261.63, 329.63];
+          freqs.forEach((f) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = mult >= 4 ? 'triangle' : 'sine';
+            osc.frequency.setValueAtTime(f, now);
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.exponentialRampToValueAtTime(0.07, now + 0.015);
+            gain.gain.exponentialRampToValueAtTime(0.0008, now + 0.32);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.34);
+          });
+        } catch (_) {}
+      }
+
+      function triggerHaptic(pattern) {
+        if (!state.hapticOn) return;
+        try {
+          if (navigator.vibrate) navigator.vibrate(pattern);
+        } catch (_) {}
+      }
+
+      function computeUnlockedCeiling(peakCps) {
+        const th = getCpsThresholds(state.devicePlatform);
+        if (peakCps >= th.tier3Peak) return 5;
+        if (peakCps >= th.tier2Peak) return 4;
+        return 3;
+      }
+
+      function applyTierTheme(ceiling) {
+        const isMobile = state.devicePlatform === 'mobile';
+        const th = getCpsThresholds(state.devicePlatform);
+        document.body.classList.remove('tier-t2', 'tier-t3');
+        rhythmBarFill.classList.remove('tier2', 'tier3');
+        platformModeLabel.textContent = isMobile ? 'MODO MÓVIL' : 'MODO PC';
+        chipT1.className = 'milestone-chip chamfer-sm unlocked-t1';
+        chipT2.className = 'milestone-chip chamfer-sm';
+        chipT3.className = 'milestone-chip chamfer-sm';
+        chipT2.textContent = `≥ ${th.tier2Peak.toFixed(1)} CPS · TECHO X4`;
+        chipT3.textContent = `≥ ${th.tier3Peak.toFixed(1)} CPS · TECHO X5`;
+
+        if (ceiling === 5) {
+          document.body.classList.add('tier-t3');
+          rhythmBarFill.classList.add('tier3');
+          chipT2.classList.add('unlocked-t2');
+          chipT3.classList.add('unlocked-t3');
+          nextThresholdLabel.textContent = 'TECHO MÁXIMO X5 DESBLOQUEADO';
+          nextThresholdLabel.style.color = 'var(--gold)';
+        } else if (ceiling === 4) {
+          document.body.classList.add('tier-t2');
+          rhythmBarFill.classList.add('tier2');
+          chipT2.classList.add('unlocked-t2');
+          nextThresholdLabel.textContent = `${th.tier3Peak.toFixed(1)} CPS → DESBLOQUEA X5`;
+          nextThresholdLabel.style.color = 'var(--magenta)';
+        } else {
+          nextThresholdLabel.textContent = `${th.tier2Peak.toFixed(1)} CPS → DESBLOQUEA X4`;
+          nextThresholdLabel.style.color = 'var(--cyan)';
+        }
+      }
+
+      function getTopGlobalScore() {
+        const rows = state.globalRankingByPlatform[state.devicePlatform] || [];
+        if (rows.length > 0 && typeof rows[0].score === 'number') {
+          return Math.max(state.maxScore, rows[0].score);
+        }
+        return state.maxScore;
+      }
+
+      function renderHud() {
+        const isSignedIn = Boolean(state.googleUser);
+        const topGlobal = getTopGlobalScore();
+
+        recordsHudGrid.classList.toggle('split-records', isSignedIn);
+        personalRecordCard.style.display = isSignedIn ? 'flex' : 'none';
+
+        if (isSignedIn) {
+          globalRecordLabel.textContent = 'MÁXIMO GLOBAL';
+          maxScoreVal.textContent = String(topGlobal);
+          maxSub.textContent = state.devicePlatform === 'mobile' ? 'Top Móvil' : 'Top PC';
+
+          personalMaxVal.textContent = String(state.personalMaxScore);
+          personalMaxSub.textContent = state.personalMaxScore > 0 ? 'Tu récord guardado' : 'Sin marca aún';
+        } else {
+          globalRecordLabel.textContent = 'MÁXIMO OBTENIDO';
+          maxScoreVal.textContent = String(state.maxScore);
+          maxSub.textContent = state.maxScore > 0 ? 'Récord multiplicado' : 'Sin marca aún';
+        }
+
+        const currentLiveScore = state.phase === 'SUMMARY' ? state.multipliedResult : state.intenseClicks;
+        const liveRank = computeRankPosition(currentLiveScore, state.devicePlatform);
+        liveRankVal.textContent = currentLiveScore > 0 ? `#${liveRank}` : '#--';
+
+        cpsVal.textContent = `${state.cps.toFixed(1)} / ${state.peakCps.toFixed(1)}`;
+        peakCpsSub.textContent = `Techo: x${state.unlockedCeiling}`;
+
+        intervalVal.textContent = state.lastIntervalMs !== null ? `${Math.round(state.lastIntervalMs)} MS` : '-- MS';
+
+        if (state.phase === 'RUNNING') stateVal.textContent = 'ACTIVO';
+        else if (state.phase === 'BONUS') stateVal.textContent = 'BONUS 5S';
+        else if (state.phase === 'SUMMARY') stateVal.textContent = 'CERRADO';
+        else stateVal.textContent = 'LISTO';
+
+        recordAlert.classList.toggle('show', state.beatRecordThisRound);
+        applyTierTheme(state.unlockedCeiling);
+      }
+
+      function renderTopControls() {
+        if (state.googleUser) {
+          const fullName = (state.googleUser.displayName || state.googleUser.email || 'PILOTO').trim().toUpperCase();
+          googleAuthText.textContent = fullName;
+          googleAuthBtn.title = `${fullName} · Clic para cerrar sesión`;
+          googleAuthBtn.classList.add('active');
+          summaryLoginBox.style.display = 'none';
+        } else {
+          googleAuthText.textContent = 'ENTRAR CON GOOGLE';
+          googleAuthBtn.title = 'Iniciar sesión con Google';
+          googleAuthBtn.classList.remove('active');
+          if (state.phase === 'SUMMARY') {
+            summaryLoginBox.style.display = 'block';
+          }
+        }
+      }
+
+      function cancelRhythmRaf() {
+        if (state.rhythmRaf !== null) {
+          cancelAnimationFrame(state.rhythmRaf);
+          state.rhythmRaf = null;
+        }
+      }
+
+      function updateCadenceGauge(ratio, mode) {
+        const clamped = Math.max(0, Math.min(1, ratio));
+        rhythmBarFill.style.width = `${(clamped * 100).toFixed(1)}%`;
+        rhythmBarFill.classList.remove('danger');
+        rhythmTag.classList.remove('warn', 'danger');
+
+        if (mode === 'IDLE') {
+          rhythmTag.textContent = 'EN ESPERA';
+        } else if (mode === 'BONUS') {
+          rhythmTag.textContent = 'CORTE LÁSER';
+          rhythmTag.classList.add('warn');
+        } else if (clamped <= 0.28) {
+          rhythmBarFill.classList.add('danger');
+          rhythmTag.textContent = 'CRÍTICO';
+          rhythmTag.classList.add('danger');
+        } else if (clamped <= 0.56) {
+          rhythmTag.textContent = 'SOSTENÉ';
+          rhythmTag.classList.add('warn');
+        } else {
+          rhythmTag.textContent = 'EN CADENCIA';
+        }
+      }
+
+      function stepRhythm(now) {
+        if (state.phase !== 'RUNNING') return;
+        const elapsed = now - state.lastTapAt;
+        const left = RHYTHM_CUTOFF_MS - elapsed;
+
+        if (left <= 0) {
+          updateCadenceGauge(0, 'RUNNING');
+          startBonusPhase();
+          return;
+        }
+
+        updateCadenceGauge(left / RHYTHM_CUTOFF_MS, 'RUNNING');
+        state.rhythmRaf = requestAnimationFrame(stepRhythm);
+      }
+
+      function updateCpsMetrics(now) {
+        const cutoff = now - 1000;
+        while (state.tapTimestamps.length > 0 && state.tapTimestamps[0] < cutoff) {
+          state.tapTimestamps.shift();
+        }
+        const elapsedSec = Math.max(0.25, (now - state.roundStartedAt) / 1000);
+        const instantCps = state.tapTimestamps.length;
+        const avgCps = state.intenseClicks / elapsedSec;
+        state.cps = state.intenseClicks <= 2 ? avgCps : Math.max(instantCps, avgCps);
+
+        if (state.cps > state.peakCps) {
+          state.peakCps = state.cps;
+        }
+
+        const nextCeiling = computeUnlockedCeiling(state.peakCps);
+        if (nextCeiling > state.unlockedCeiling) {
+          state.unlockedCeiling = nextCeiling;
+          playTierUnlockSound(nextCeiling);
+          triggerHaptic([18, 16, 26]);
+        }
+      }
+
+      function spawnPulse(clientX, clientY) {
+        const rect = tapButton.getBoundingClientRect();
+        const x = typeof clientX === 'number' ? clientX - rect.left : rect.width / 2;
+        const y = typeof clientY === 'number' ? clientY - rect.top : rect.height / 2;
+
+        const pulse = document.createElement('span');
+        pulse.className = 'cyber-pulse';
+        pulse.style.left = `${x}px`;
+        pulse.style.top = `${y}px`;
+        tapButton.appendChild(pulse);
+        setTimeout(() => pulse.remove(), 440);
+      }
+
+      function handleReactorTap(clientX, clientY, pointerType) {
+        if (state.phase !== 'IDLE' && state.phase !== 'RUNNING') return;
+
+        const now = performance.now();
+        if (state.phase === 'RUNNING' && now - state.lastTapAt < state.dedupeMs) {
+          return;
+        }
+
+        if (pointerType === 'touch') {
+          state.devicePlatform = 'mobile';
+        } else if (pointerType === 'mouse' || pointerType === 'keyboard') {
+          state.devicePlatform = 'pc';
+        }
+
+        if (state.phase === 'IDLE') {
+          state.phase = 'RUNNING';
+          state.roundStartedAt = now;
+          state.intenseClicks = 0;
+          state.cps = 0;
+          state.peakCps = 0;
+          state.unlockedCeiling = 3;
+          state.lastIntervalMs = null;
+          state.tapTimestamps = [];
+          state.intervalsMs = [];
+          state.lastTelemetry = null;
+          state.beatRecordThisRound = false;
+          tapButtonLabel.textContent = '¡ACTIVO!';
+          tapButtonSub.textContent = 'ACELERÁ EL CPS PARA DESBLOQUEAR X4 / X5';
+        } else {
+          const dt = now - state.lastTapAt;
+          state.lastIntervalMs = dt;
+          state.intervalsMs.push(Number(dt.toFixed(2)));
+        }
+
+        state.lastTapAt = now;
+        state.intenseClicks += 1;
+        state.tapTimestamps.push(now);
+        updateCpsMetrics(now);
+
+        if (state.intenseClicks > state.maxScore) {
+          state.maxScore = state.intenseClicks;
+          state.beatRecordThisRound = true;
+          saveState();
+        }
+
+        tapButton.classList.add('pressed');
+        setTimeout(() => tapButton.classList.remove('pressed'), 55);
+
+        spawnPulse(clientX, clientY);
+        triggerHaptic(8);
+        playLaserPulse(state.cps, state.unlockedCeiling);
+
+        updateCadenceGauge(1, 'RUNNING');
+        renderHud();
+
+        cancelRhythmRaf();
+        state.rhythmRaf = requestAnimationFrame(stepRhythm);
+      }
+
+      tapButton.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        handleReactorTap(e.clientX, e.clientY, e.pointerType);
+      });
+
+      tapButton.addEventListener(
+        'touchstart',
+        (e) => {
+          if (window.PointerEvent) return;
+          const touches = e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches : e.touches;
+          if (!touches || touches.length === 0) {
+            handleReactorTap(null, null, 'touch');
+            return;
+          }
+          for (let i = 0; i < touches.length; i++) {
+            handleReactorTap(touches[i].clientX, touches[i].clientY, 'touch');
+          }
+        },
+        { passive: true }
+      );
+
+      async function autoPersistRoundResult(mult, finalScore, telemetry) {
+        const fbApi = window.OvertapFirebase || window.ClickRushFirebase;
+        const fbUser = (fbApi && fbApi.currentUser) || state.googleUser;
+        const resolvedName = (fbUser && fbUser.displayName) || state.alias || 'PILOTO_01';
+        state.alias = resolvedName;
+
+        const entry = {
+          name: resolvedName,
+          countryCode: state.countryCode,
+          platform: state.devicePlatform,
+          score: finalScore,
+          maxScore: state.maxScore,
+          clicks: state.intenseClicks,
+          mult,
+          peakCps: state.peakCps,
+          ceiling: state.unlockedCeiling,
+          integrityStatus: telemetry.integrityStatus,
+          date: new Date().toISOString()
+        };
+
+        if (telemetry.integrityStatus === 'clean') {
+          state.ranking.push(entry);
+          if (state.ranking.length > 60) {
+            state.ranking = state.ranking.sort((a, b) => b.score - a.score).slice(0, 60);
+          }
+        }
+        saveState();
+
+        if (!fbUser) {
+          summaryNotice.textContent = 'NO INICIASTE SESIÓN CON GOOGLE: ESTE PUNTAJE NO SE GUARDA EN EL RANKING GLOBAL Y QUEDA SOLO EN ESTE DISPOSITIVO.';
+          summaryNotice.classList.add('show');
+          summaryLoginBox.style.display = 'block';
+          renderHud();
+          return;
+        }
+
+        summaryLoginBox.style.display = 'none';
+
+        if (fbApi) {
+          try {
+            const fbRes = await fbApi.upsertPlayerScore(entry, telemetry);
+            if (fbRes) {
+              if (typeof fbRes.personalBest === 'number' && fbRes.personalBest > state.personalMaxScore) {
+                state.personalMaxScore = fbRes.personalBest;
+                saveState();
+                renderHud();
+              }
+              if (fbRes.msg) {
+                summaryNotice.textContent = fbRes.msg;
+                summaryNotice.classList.add('show');
+              }
+            }
+            await refreshLeaderboardData(state.devicePlatform);
+            const updatedRank = computeRankPosition(finalScore, state.devicePlatform);
+            summaryRankVal.textContent = `#${updatedRank}`;
+            liveRankVal.textContent = `#${updatedRank}`;
+          } catch (_) {}
+        }
+      }
+
+      function openSummaryModal(mult, finalScore) {
+        bonusOverlay.classList.remove('open');
+        lightMarker.classList.remove('frozen');
+        frozenPin.classList.remove('show');
+        frozenOutcomePanel.classList.remove('show');
+
+        state.phase = 'SUMMARY';
+        state.summaryOpenedAt = performance.now();
+        state.bonusMultiplier = mult;
+        state.multipliedResult = finalScore;
+        state.roundsPlayed += 1;
+        state.lastTelemetry = buildSessionTelemetry(mult, finalScore);
+
+        if (state.lastTelemetry.integrityStatus === 'clean') {
+          if (finalScore > state.personalMaxScore) {
+            state.personalMaxScore = finalScore;
+          }
+          if (finalScore > state.maxScore) {
+            state.maxScore = finalScore;
+            state.beatRecordThisRound = true;
+          }
+        } else if (finalScore > state.maxScore && state.ranking.length === 0) {
+          state.maxScore = finalScore;
+          state.beatRecordThisRound = true;
+        }
+
+        saveState();
+        renderHud();
+
+        const roundRank = computeRankPosition(finalScore, state.devicePlatform);
+        summaryMultBadge.textContent = `MULT x${mult}`;
+        summaryFinalVal.textContent = `${finalScore} PTS`;
+        summaryMaxVal.textContent = `${state.googleUser ? state.personalMaxScore : state.maxScore} PTS`;
+        summaryClicksVal.textContent = String(state.intenseClicks);
+        summaryStatsVal.textContent = `${state.peakCps.toFixed(1)} / X${state.unlockedCeiling}`;
+        summaryRankVal.textContent = `#${roundRank}`;
+        summaryNotice.classList.remove('show');
+        summaryLoginBox.style.display = state.googleUser ? 'none' : 'block';
+
+        summaryOverlay.classList.add('open');
+        autoPersistRoundResult(mult, finalScore, state.lastTelemetry);
+      }
+
+      function cancelBonusRaf() {
+        if (state.bonusRaf !== null) {
+          cancelAnimationFrame(state.bonusRaf);
+          state.bonusRaf = null;
+        }
+      }
+
+      function clearFreezeTimeout() {
+        if (state.freezeTimeout !== null) {
+          clearTimeout(state.freezeTimeout);
+          state.freezeTimeout = null;
+        }
+      }
+
+      function buildDynamicBonusTrack(ceiling) {
+        let innerSpecs = [];
+        if (ceiling === 5) {
+          innerSpecs = [
+            { mult: 1.5, label: 'x1.5', width: 0.07, cssClass: 'seg-x15' },
+            { mult: 2, label: 'x2', width: 0.06, cssClass: 'seg-x2' },
+            { mult: 3, label: 'x3', width: 0.05, cssClass: 'seg-x3' },
+            { mult: 4, label: 'x4', width: 0.04, cssClass: 'seg-x4' },
+            { mult: 5, label: 'x5', width: 0.034, cssClass: 'seg-x5' },
+            { mult: 4, label: 'x4', width: 0.04, cssClass: 'seg-x4' },
+            { mult: 3, label: 'x3', width: 0.05, cssClass: 'seg-x3' },
+            { mult: 2, label: 'x2', width: 0.06, cssClass: 'seg-x2' },
+            { mult: 1.5, label: 'x1.5', width: 0.07, cssClass: 'seg-x15' }
+          ];
+        } else if (ceiling === 4) {
+          innerSpecs = [
+            { mult: 1.5, label: 'x1.5', width: 0.08, cssClass: 'seg-x15' },
+            { mult: 2, label: 'x2', width: 0.07, cssClass: 'seg-x2' },
+            { mult: 3, label: 'x3', width: 0.055, cssClass: 'seg-x3' },
+            { mult: 4, label: 'x4', width: 0.045, cssClass: 'seg-x4' },
+            { mult: 3, label: 'x3', width: 0.055, cssClass: 'seg-x3' },
+            { mult: 2, label: 'x2', width: 0.07, cssClass: 'seg-x2' },
+            { mult: 1.5, label: 'x1.5', width: 0.08, cssClass: 'seg-x15' }
+          ];
+        } else {
+          innerSpecs = [
+            { mult: 1.5, label: 'x1.5', width: 0.10, cssClass: 'seg-x15' },
+            { mult: 2, label: 'x2', width: 0.08, cssClass: 'seg-x2' },
+            { mult: 3, label: 'x3', width: 0.055, cssClass: 'seg-x3' },
+            { mult: 2, label: 'x2', width: 0.08, cssClass: 'seg-x2' },
+            { mult: 1.5, label: 'x1.5', width: 0.10, cssClass: 'seg-x15' }
+          ];
+        }
+
+        const clusterWidth = innerSpecs.reduce((acc, s) => acc + s.width, 0);
+        const minSafeEdge = 0.08;
+        const maxLeftEdge = 1 - clusterWidth - minSafeEdge;
+        const leftSafeWidth = Number((minSafeEdge + Math.random() * (maxLeftEdge - minSafeEdge)).toFixed(4));
+        const rightSafeWidth = Number((1 - leftSafeWidth - clusterWidth).toFixed(4));
+
+        const allSpecs = [
+          { mult: 1, label: 'x1', width: leftSafeWidth, cssClass: 'seg-x1' },
+          ...innerSpecs,
+          { mult: 1, label: 'x1', width: rightSafeWidth, cssClass: 'seg-x1' }
+        ];
+
+        let cursor = 0;
+        state.bonusSegments = allSpecs.map((spec, idx) => {
+          const start = cursor;
+          const end = idx === allSpecs.length - 1 ? 1 : Number((cursor + spec.width).toFixed(5));
+          cursor = end;
+          return {
+            index: idx,
+            start,
+            end,
+            width: end - start,
+            mult: spec.mult,
+            label: spec.label,
+            cssClass: spec.cssClass
+          };
+        });
+
+        bonusZones.style.gridTemplateColumns = state.bonusSegments
+          .map((seg) => `${(seg.width * 100).toFixed(3)}%`)
+          .join(' ');
+
+        bonusZones.innerHTML = state.bonusSegments
+          .map((seg) => `<div class="zone-seg ${seg.cssClass}" data-seg-idx="${seg.index}">${seg.label}</div>`)
+          .join('');
+      }
+
+      function getSegmentAtPos(pos) {
+        for (let i = 0; i < state.bonusSegments.length; i++) {
+          const seg = state.bonusSegments[i];
+          if (pos >= seg.start && pos <= seg.end) {
+            return seg;
+          }
+        }
+        return state.bonusSegments[0] || { index: 0, mult: 1, label: 'x1' };
+      }
+
+      function positionFrozenPin(pos) {
+        const trackRect = laserTrack.getBoundingClientRect();
+        const stageRect = trackStage.getBoundingClientRect();
+        const relX = trackRect.left - stageRect.left + pos * trackRect.width;
+        const clampedX = Math.max(54, Math.min(stageRect.width - 54, relX));
+        frozenPin.style.left = `${clampedX}px`;
+      }
+
+      function freezeBonusAt(seg, reasonText) {
+        if (state.phase !== 'BONUS' || state.bonusLocked) return;
+        state.bonusLocked = true;
+        stopLaserBtn.disabled = true;
+        cancelBonusRaf();
+        clearFreezeTimeout();
+
+        const mult = seg ? seg.mult : 1;
+        const finalScore = Math.round(state.intenseClicks * mult);
+        const pctStr = `${(state.markerPos * 100).toFixed(2)}%`;
+
+        lightMarker.style.left = pctStr;
+        lightMarker.classList.add('frozen');
+
+        if (seg && typeof seg.index === 'number') {
+          const el = bonusZones.querySelector(`[data-seg-idx="${seg.index}"]`);
+          if (el) el.classList.add('hit-glow');
+        }
+
+        frozenPin.textContent = `${reasonText} · ${finalScore} PTS`;
+        frozenPin.classList.add('show');
+        positionFrozenPin(state.markerPos);
+
+        bonusMultVal.textContent = `x${mult}`;
+        bonusCaption.textContent = `${reasonText} — LÁSER DETENIDO AL ${pctStr} DE LA BARRA.`;
+        frozenZoneLabel.textContent = `${reasonText} · RESULTADO FINAL MULTIPLICADO`;
+        frozenFinalScore.textContent = `${finalScore} PTS (${state.intenseClicks} × ${mult})`;
+        frozenOutcomePanel.classList.add('show');
+
+        triggerHaptic([28, 22, 48]);
+        playFreezeChord(mult);
+
+        state.freezeTimeout = setTimeout(() => {
+          openSummaryModal(mult, finalScore);
+        }, FREEZE_INSPECT_MS);
+      }
+
+      function stepBonus(now) {
+        if (state.phase !== 'BONUS' || state.bonusLocked) return;
+
+        const elapsed = now - state.bonusStartedAt;
+        const remainingMs = Math.max(0, BONUS_WINDOW_MS - elapsed);
+        bonusClock.textContent = `${(remainingMs / 1000).toFixed(1)}S`;
+        bonusClock.classList.toggle('urgent', remainingMs <= 1250);
+
+        if (elapsed >= BONUS_WINDOW_MS) {
+          const safeSeg = state.bonusSegments[0] || { index: 0, mult: 1, label: 'x1' };
+          freezeBonusAt(safeSeg, 'TIEMPO AGOTADO · ZONA X1');
+          return;
+        }
+
+        const dt = 1 / 60;
+        let nextPos = state.markerPos + state.markerDir * state.markerSpeed * dt;
+        if (nextPos >= 1) {
+          nextPos = 1 - (nextPos - 1);
+          state.markerDir = -1;
+        } else if (nextPos <= 0) {
+          nextPos = -nextPos;
+          state.markerDir = 1;
+        }
+
+        state.markerPos = nextPos;
+        lightMarker.style.left = `${(state.markerPos * 100).toFixed(2)}%`;
+
+        const currentSeg = getSegmentAtPos(state.markerPos);
+        bonusMultVal.textContent = currentSeg.label;
+        if (currentSeg.index !== state.lastTickZoneIdx) {
+          state.lastTickZoneIdx = currentSeg.index;
+          playLaserTick(currentSeg.mult);
+        }
+
+        state.bonusRaf = requestAnimationFrame(stepBonus);
+      }
+
+      function startBonusPhase() {
+        if (state.phase !== 'RUNNING') return;
+        cancelRhythmRaf();
+        clearFreezeTimeout();
+
+        state.phase = 'BONUS';
+        state.bonusLocked = false;
+        state.lastTickZoneIdx = -1;
+        updateCadenceGauge(0, 'BONUS');
+        renderHud();
+
+        playCadenceBreakSound();
+        triggerHaptic([35, 25, 45]);
+
+        if (state.intenseClicks <= 0) {
+          openSummaryModal(1, 0);
+          return;
+        }
+
+        const now = performance.now();
+        state.bonusStartedAt = now;
+        state.bonusArmedAt = now + BONUS_ARM_GUARD_MS;
+
+        buildDynamicBonusTrack(state.unlockedCeiling);
+
+        const firstSeg = state.bonusSegments[0];
+        const startRight = firstSeg && firstSeg.width < 0.22;
+        state.markerPos = startRight ? 0.96 : 0.04;
+        state.markerDir = startRight ? -1 : 1;
+        state.markerSpeed = state.unlockedCeiling === 5 ? 2.15 : state.unlockedCeiling === 4 ? 1.92 : 1.72;
+
+        bonusTierInfo.textContent = `TECHO DESBLOQUEADO POR CPS (${state.peakCps.toFixed(1)} CPS): HASTA X${state.unlockedCeiling}`;
+        bonusClicksVal.textContent = String(state.intenseClicks);
+        bonusPeakCpsVal.textContent = state.peakCps.toFixed(1);
+        bonusMultVal.textContent = 'x1';
+        bonusClock.textContent = '5.0S';
+        bonusClock.classList.remove('urgent');
+        bonusCaption.textContent = 'FRENÁ EL LÁSER ANTES DE 5.0S (TOQUE O ESPACIO). LAS ZONAS X1 LATERALES PROTEGEN TUS CLICS.';
+
+        frozenPin.classList.remove('show');
+        frozenOutcomePanel.classList.remove('show');
+        lightMarker.classList.remove('frozen');
+        lightMarker.style.left = `${(state.markerPos * 100).toFixed(2)}%`;
+
+        stopLaserBtn.disabled = true;
+        bonusOverlay.classList.add('open');
+
+        setTimeout(() => {
+          if (state.phase === 'BONUS' && !state.bonusLocked) {
+            stopLaserBtn.disabled = false;
+          }
+        }, BONUS_ARM_GUARD_MS);
+
+        state.bonusRaf = requestAnimationFrame(stepBonus);
+      }
+
+      function triggerStopLaser(e) {
+        if (e && e.type === 'touchstart' && e.cancelable) {
+          e.preventDefault();
+        }
+        if (state.phase !== 'BONUS' || state.bonusLocked) return;
+        const now = performance.now();
+        if (now < state.bonusArmedAt) return;
+
+        const seg = getSegmentAtPos(state.markerPos);
+        const tag = seg.mult === state.unlockedCeiling ? `¡PUNTO DULCE ${seg.label.toUpperCase()}!` : `FRENADO EN ${seg.label.toUpperCase()}`;
+        freezeBonusAt(seg, tag);
+      }
+
+      stopLaserBtn.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        triggerStopLaser(e);
+      });
+
+      stopLaserBtn.addEventListener(
+        'touchstart',
+        (e) => {
+          if (window.PointerEvent) return;
+          triggerStopLaser(e);
+        },
+        { passive: false }
+      );
+
+      stopLaserBtn.addEventListener('click', triggerStopLaser);
+
+      window.addEventListener('keydown', (e) => {
+        if (e.code !== 'Space' || e.repeat) return;
+        if (document.activeElement && ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+          return;
+        }
+        if (rankingOverlay.classList.contains('open') || helpOverlay.classList.contains('open')) return;
+
+        e.preventDefault();
+        if (state.phase === 'IDLE' || state.phase === 'RUNNING') {
+          handleReactorTap(null, null, 'keyboard');
+        } else if (state.phase === 'BONUS') {
+          triggerStopLaser(e);
+        }
+      });
+
+      function resetSession(force) {
+        if (!force && state.phase === 'SUMMARY') {
+          if (performance.now() - state.summaryOpenedAt < POST_ROUND_LOCK_MS) {
+            return;
+          }
+        }
+
+        cancelRhythmRaf();
+        cancelBonusRaf();
+        clearFreezeTimeout();
+
+        state.phase = 'IDLE';
+        state.bonusLocked = false;
+        state.intenseClicks = 0;
+        state.lastIntervalMs = null;
+        state.tapTimestamps = [];
+        state.cps = 0;
+        state.peakCps = 0;
+        state.unlockedCeiling = 3;
+        state.bonusMultiplier = 1;
+        state.multipliedResult = 0;
+        state.beatRecordThisRound = false;
+
+        bonusOverlay.classList.remove('open');
+        summaryOverlay.classList.remove('open');
+        summaryLoginBox.style.display = 'none';
+        lightMarker.classList.remove('frozen');
+        frozenPin.classList.remove('show');
+        frozenOutcomePanel.classList.remove('show');
+        tapButton.classList.remove('pressed');
+
+        updateCadenceGauge(0, 'IDLE');
+        tapButtonLabel.textContent = 'INICIAR';
+        tapButtonSub.textContent = 'TOCÁ O PULSÁ ESPACIO (< 200 MS)';
+        renderHud();
+      }
+
+      playAgainBtn.addEventListener('click', () => resetSession(false));
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function renderRankingList() {
+        const activeTab = state.rankingTab === 'mobile' ? 'mobile' : 'pc';
+        tabRankingPc.classList.toggle('active', activeTab === 'pc');
+        tabRankingMobile.classList.toggle('active', activeTab === 'mobile');
+        rankingScopeLabel.textContent = activeTab === 'mobile' ? 'TOP 10 · CATEGORÍA MÓVIL' : 'TOP 10 · CATEGORÍA PC';
+
+        const sorted = getPlatformLeaderboardRows(activeTab).slice(0, 10);
+
+        if (sorted.length === 0) {
+          rankingContainer.innerHTML = `<p style="margin: 0; font-size: 12px; color: var(--text-slate);">AÚN NO HAY REGISTROS EN ${activeTab === 'mobile' ? 'MÓVIL' : 'PC'}.</p>`;
+          return;
+        }
+
+        rankingContainer.innerHTML = sorted
+          .map((item, idx) => {
+            const flag = countryCodeToFlag(item.countryCode);
+            return `
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: #02050e; border: 1px solid rgba(0, 243, 255, 0.2); font-size: 12px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-family: var(--font-display); font-weight: 900; color: var(--cyan);">#${idx + 1}</span>
+              <span title="${escapeHtml(item.countryCode || 'Global')}" style="font-size: 15px; line-height: 1;">${flag}</span>
+              <span style="font-weight: 700; color: #ffffff;">${escapeHtml(item.name || 'PILOTO')}</span>
+              <span style="padding: 1px 6px; background: rgba(255, 230, 0, 0.16); border: 1px solid rgba(255, 230, 0, 0.45); font-family: var(--font-display); font-size: 10px; font-weight: 800; color: var(--gold);">
+                x${item.mult || 1}
+              </span>
+            </div>
+            <span style="font-family: var(--font-display); font-weight: 900; color: #ffffff;">${item.score} PTS</span>
+          </div>
+        `;
+          })
+          .join('');
+      }
+
+      async function refreshLeaderboardData(platform = state.rankingTab) {
+        const targetPlatform = platform === 'mobile' ? 'mobile' : 'pc';
+        const fbApi = window.OvertapFirebase || window.ClickRushFirebase;
+        if (!fbApi) {
+          renderRankingList();
+          return;
+        }
+        try {
+          const rows = await fbApi.fetchGlobalTop(targetPlatform, 10);
+          state.globalRankingByPlatform[targetPlatform] = rows;
+          if (state.googleUser && targetPlatform === state.devicePlatform) {
+            const mine = rows.find((r) => r.uid === state.googleUser.uid);
+            if (mine && typeof mine.score === 'number') {
+              state.personalMaxScore = Math.max(state.personalMaxScore, mine.score);
+              saveState();
+            }
+          }
+          renderHud();
+          renderRankingList();
+        } catch (_) {
+          renderRankingList();
+        }
+      }
+
+      async function syncPersonalBestForUser(user) {
+        const fbApi = window.OvertapFirebase || window.ClickRushFirebase;
+        if (!user || !fbApi) return;
+        try {
+          const docData = await fbApi.fetchPersonalBest(state.devicePlatform, user.uid);
+          if (docData && typeof docData.score === 'number') {
+            state.personalMaxScore = Math.max(state.personalMaxScore, docData.score);
+            saveState();
+            renderHud();
+          }
+        } catch (_) {}
+      }
+
+      async function handleGoogleLoginAction() {
+        const fbApi = window.OvertapFirebase || window.ClickRushFirebase;
+        if (!fbApi) return;
+        try {
+          if (fbApi.currentUser) {
+            await fbApi.signOutUser();
+          } else {
+            await fbApi.signInWithGoogle();
+          }
+        } catch (err) {
+          console.warn('Error de autenticación Google:', err);
+        }
+      }
+
+      googleAuthBtn.addEventListener('click', handleGoogleLoginAction);
+      summaryGoogleLoginBtn.addEventListener('click', async () => {
+        await handleGoogleLoginAction();
+        if (state.phase === 'SUMMARY' && state.lastTelemetry) {
+          await autoPersistRoundResult(state.bonusMultiplier, state.multipliedResult, state.lastTelemetry);
+        }
+      });
+
+      function onAuthStateUpdated(e) {
+        const user = (e.detail && e.detail.user) || null;
+        state.googleUser = user;
+        if (user) {
+          if (user.displayName) {
+            state.alias = user.displayName.slice(0, 24);
+          }
+          saveState();
+          renderTopControls();
+          renderHud();
+          syncPersonalBestForUser(user);
+          refreshLeaderboardData(state.devicePlatform);
+          if (state.phase === 'SUMMARY' && state.lastTelemetry) {
+            summaryMaxVal.textContent = `${state.personalMaxScore} PTS`;
+            autoPersistRoundResult(state.bonusMultiplier, state.multipliedResult, state.lastTelemetry);
+          }
+        } else {
+          renderTopControls();
+          renderHud();
+        }
+      }
+
+      window.addEventListener('overtap-auth-changed', onAuthStateUpdated);
+      window.addEventListener('clickrush-auth-changed', onAuthStateUpdated);
+
+      openRankingBtn.addEventListener('click', () => {
+        state.rankingTab = state.devicePlatform;
+        renderRankingList();
+        rankingOverlay.classList.add('open');
+        refreshLeaderboardData(state.rankingTab);
+      });
+
+      tabRankingPc.addEventListener('click', () => {
+        state.rankingTab = 'pc';
+        renderRankingList();
+        refreshLeaderboardData('pc');
+      });
+
+      tabRankingMobile.addEventListener('click', () => {
+        state.rankingTab = 'mobile';
+        renderRankingList();
+        refreshLeaderboardData('mobile');
+      });
+
+      closeRankingBtn.addEventListener('click', () => {
+        rankingOverlay.classList.remove('open');
+      });
+
+      refreshRankingBtn.addEventListener('click', async () => {
+        await refreshLeaderboardData(state.rankingTab);
+      });
+
+      openHelpBtn.addEventListener('click', () => {
+        helpOverlay.classList.add('open');
+      });
+
+      closeHelpBtn.addEventListener('click', () => {
+        helpOverlay.classList.remove('open');
+      });
+
+      closeHelpFooterBtn.addEventListener('click', () => {
+        helpOverlay.classList.remove('open');
+      });
+
+      loadState();
+      renderTopControls();
+      updateCadenceGauge(0, 'IDLE');
+      renderHud();
+      refreshLeaderboardData(state.devicePlatform);
+    })();
+  </script>
+</body>
+</html>
