@@ -1415,6 +1415,7 @@
       const STORAGE_KEYS = {
         MAX_SCORE: 'overtap_tron_max_v1',
         PERSONAL_MAX_SCORE: 'overtap_tron_personal_max_v1',
+        PERSONAL_MAX_BY_UID: 'overtap_tron_personal_by_uid_v1',
         ALIAS: 'overtap_tron_alias_v1',
         DEDUPE: 'overtap_tron_dedupe_v1',
         RANKING: 'overtap_tron_ranking_v1',
@@ -1533,23 +1534,29 @@
 
       const helpOverlay = document.getElementById('help-overlay');
       const closeHelpBtn = document.getElementById('close-help-btn');
-      const dismissHelpForeverBtn = document.getElementById('dismiss-help-forever-btn');
       const closeHelpFooterBtn = document.getElementById('close-help-footer-btn');
+      const dismissHelpForeverBtn = document.getElementById('dismiss-help-forever-btn');
 
-      function updateMainButtonPrompt() {
-        if (state.phase === 'RUNNING') {
-          tapButtonLabel.textContent = '¡SEGUÍ TOCANDO!';
-          if (state.unlockedCeiling >= 5) {
-            tapButtonSub.textContent = '¡X5 MÁXIMO DESBLOQUEADO!';
-          } else if (state.unlockedCeiling === 4) {
-            tapButtonSub.textContent = '¡X4 DESBLOQUEADO! · ACELERÁ PARA X5';
-          } else {
-            tapButtonSub.textContent = 'ACELERÁ PARA DESBLOQUEAR X4';
-          }
-        } else {
-          tapButtonLabel.textContent = '¡TOCÁ SIN PARAR!';
-          tapButtonSub.textContent = 'HACÉ MUCHOS CLICS SEGUIDOS (< 200 MS)';
+      function getPersonalBestStorageKey(uid, platform = state.devicePlatform) {
+        return `${STORAGE_KEYS.PERSONAL_MAX_BY_UID}_${uid}_${platform}`;
+      }
+
+      function readPersonalBestForUid(uid, platform = state.devicePlatform) {
+        if (!uid) return 0;
+        try {
+          const raw = parseInt(localStorage.getItem(getPersonalBestStorageKey(uid, platform)) || '0', 10);
+          return !Number.isNaN(raw) && raw > 0 ? raw : 0;
+        } catch (_) {
+          return 0;
         }
+      }
+
+      function writePersonalBestForUid(uid, score, platform = state.devicePlatform) {
+        if (!uid) return;
+        try {
+          const clean = Math.max(0, Math.round(Number(score) || 0));
+          localStorage.setItem(getPersonalBestStorageKey(uid, platform), String(clean));
+        } catch (_) {}
       }
 
       function loadState() {
@@ -1557,12 +1564,7 @@
           const m = parseInt(localStorage.getItem(STORAGE_KEYS.MAX_SCORE) || '0', 10);
           if (!Number.isNaN(m) && m >= 0) state.maxScore = m;
 
-          const pm = parseInt(localStorage.getItem(STORAGE_KEYS.PERSONAL_MAX_SCORE) || '0', 10);
-          if (!Number.isNaN(pm) && pm >= 0) {
-            state.personalMaxScore = pm;
-          } else if (state.maxScore > 0) {
-            state.personalMaxScore = state.maxScore;
-          }
+          state.personalMaxScore = 0;
 
           const a = localStorage.getItem(STORAGE_KEYS.ALIAS);
           if (a && a.trim()) state.alias = a.trim();
@@ -1591,7 +1593,9 @@
       function saveState() {
         try {
           localStorage.setItem(STORAGE_KEYS.MAX_SCORE, String(state.maxScore));
-          localStorage.setItem(STORAGE_KEYS.PERSONAL_MAX_SCORE, String(state.personalMaxScore));
+          if (state.googleUser && state.googleUser.uid) {
+            writePersonalBestForUid(state.googleUser.uid, state.personalMaxScore, state.devicePlatform);
+          }
           localStorage.setItem(STORAGE_KEYS.ALIAS, state.alias);
           localStorage.setItem(STORAGE_KEYS.DEDUPE, String(state.dedupeMs));
           localStorage.setItem(STORAGE_KEYS.RANKING, JSON.stringify(state.ranking));
@@ -1841,6 +1845,24 @@
           return Math.max(state.maxScore, rows[0].score);
         }
         return state.maxScore;
+      }
+
+      function updateMainButtonPrompt() {
+        if (!tapButtonLabel || !tapButtonSub) return;
+
+        if (state.phase === 'RUNNING') {
+          tapButtonLabel.textContent = '¡SEGUÍ TOCANDO!';
+          if (state.unlockedCeiling === 5) {
+            tapButtonSub.textContent = '¡X5 MÁXIMO DESBLOQUEADO!';
+          } else if (state.unlockedCeiling === 4) {
+            tapButtonSub.textContent = '¡X4 DESBLOQUEADO! · ACELERÁ PARA X5';
+          } else {
+            tapButtonSub.textContent = 'ACELERÁ PARA DESBLOQUEAR X4';
+          }
+        } else {
+          tapButtonLabel.textContent = '¡TOCÁ SIN PARAR!';
+          tapButtonSub.textContent = 'HACÉ MUCHOS CLICS SEGUIDOS (< 200 MS)';
+        }
       }
 
       function renderHud() {
@@ -2518,13 +2540,21 @@
 
       async function syncPersonalBestForUser(user) {
         const fbApi = window.OvertapFirebase || window.ClickRushFirebase;
-        if (!user || !fbApi) return;
+        if (!user || !user.uid) return;
+        const cachedUidBest = readPersonalBestForUid(user.uid, state.devicePlatform);
+        state.personalMaxScore = cachedUidBest;
+        renderHud();
+        if (!fbApi) return;
         try {
           const docData = await fbApi.fetchPersonalBest(state.devicePlatform, user.uid);
-          if (docData && typeof docData.score === 'number') {
-            state.personalMaxScore = Math.max(state.personalMaxScore, docData.score);
-            saveState();
+          if (state.googleUser && state.googleUser.uid === user.uid) {
+            const remoteScore = docData && typeof docData.score === 'number' ? docData.score : 0;
+            state.personalMaxScore = Math.max(cachedUidBest, remoteScore);
+            writePersonalBestForUid(user.uid, state.personalMaxScore, state.devicePlatform);
             renderHud();
+            if (state.phase === 'SUMMARY') {
+              summaryMaxVal.textContent = `${state.personalMaxScore} PTS`;
+            }
           }
         } catch (_) {}
       }
@@ -2553,11 +2583,20 @@
 
       function onAuthStateUpdated(e) {
         const user = (e.detail && e.detail.user) || null;
+        const prevUid = state.googleUser ? state.googleUser.uid : null;
+        const nextUid = user ? user.uid : null;
         state.googleUser = user;
+
+        if (prevUid !== nextUid) {
+          state.personalMaxScore = 0;
+          state.beatRecordThisRound = false;
+        }
+
         if (user) {
           if (user.displayName) {
             state.alias = user.displayName.slice(0, 24);
           }
+          state.personalMaxScore = readPersonalBestForUid(user.uid, state.devicePlatform);
           saveState();
           renderTopControls();
           renderHud();
@@ -2568,8 +2607,16 @@
             autoPersistRoundResult(state.bonusMultiplier, state.multipliedResult, state.lastTelemetry);
           }
         } else {
+          state.personalMaxScore = 0;
+          state.maxScore = 0;
+          state.alias = 'PILOTO_01';
+          try {
+            localStorage.removeItem(STORAGE_KEYS.PERSONAL_MAX_SCORE);
+            localStorage.removeItem(STORAGE_KEYS.MAX_SCORE);
+          } catch (_) {}
           renderTopControls();
           renderHud();
+          refreshLeaderboardData(state.devicePlatform);
         }
       }
 
@@ -2607,16 +2654,20 @@
         helpOverlay.classList.remove('open');
       });
 
-      closeHelpFooterBtn.addEventListener('click', () => {
-        helpOverlay.classList.remove('open');
-      });
+      if (closeHelpFooterBtn) {
+        closeHelpFooterBtn.addEventListener('click', () => {
+          helpOverlay.classList.remove('open');
+        });
+      }
 
-      dismissHelpForeverBtn.addEventListener('click', () => {
-        try {
-          localStorage.setItem(STORAGE_KEYS.HIDE_HELP_ON_START, '1');
-        } catch (_) {}
-        helpOverlay.classList.remove('open');
-      });
+      if (dismissHelpForeverBtn) {
+        dismissHelpForeverBtn.addEventListener('click', () => {
+          try {
+            localStorage.setItem(STORAGE_KEYS.HIDE_HELP_ON_START, '1');
+          } catch (_) {}
+          helpOverlay.classList.remove('open');
+        });
+      }
 
       function maybeOpenHelpOnStart() {
         try {
