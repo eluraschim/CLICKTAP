@@ -1895,6 +1895,734 @@
 
         updateMainButtonPrompt();
       }
+
+      function spawnCyberPulse(clientX, clientY) {
+        const rect = tapButton.getBoundingClientRect();
+        const x = typeof clientX === 'number' && clientX > 0 ? clientX - rect.left : rect.width / 2;
+        const y = typeof clientY === 'number' && clientY > 0 ? clientY - rect.top : rect.height / 2;
+
+        const pulse = document.createElement('span');
+        pulse.className = 'cyber-pulse';
+        pulse.style.left = `${x}px`;
+        pulse.style.top = `${y}px`;
+        tapButton.appendChild(pulse);
+        setTimeout(() => {
+          if (pulse.parentNode) pulse.parentNode.removeChild(pulse);
+        }, 440);
+      }
+
+      function computeCps(now) {
+        const cutoff = now - 1000;
+        while (state.tapTimestamps.length > 0 && state.tapTimestamps[0] < cutoff) {
+          state.tapTimestamps.shift();
+        }
+        if (state.tapTimestamps.length <= 1) {
+          return state.tapTimestamps.length === 1 ? 1.0 : 0.0;
+        }
+        const spanMs = Math.max(now - state.tapTimestamps[0], 110);
+        return (state.tapTimestamps.length / spanMs) * 1000;
+      }
+
+      function startRhythmLoop() {
+        if (state.rhythmRaf) cancelAnimationFrame(state.rhythmRaf);
+
+        const tick = () => {
+          if (state.phase !== 'RUSH') return;
+
+          const now = performance.now();
+          const elapsedSinceTap = now - state.lastTapAt;
+
+          if (elapsedSinceTap >= RHYTHM_CUTOFF_MS) {
+            rhythmBarFill.style.width = '0%';
+            triggerRhythmBreak();
+            return;
+          }
+
+          const remainingRatio = Math.max(0, 1 - elapsedSinceTap / RHYTHM_CUTOFF_MS);
+          rhythmBarFill.style.width = `${(remainingRatio * 100).toFixed(1)}%`;
+
+          if (remainingRatio < 0.32) {
+            rhythmBarFill.classList.add('danger');
+          } else {
+            rhythmBarFill.classList.remove('danger');
+          }
+
+          state.cps = computeCps(now);
+          cpsVal.textContent = `${state.cps.toFixed(1)} / ${state.peakCps.toFixed(1)}`;
+          state.rhythmRaf = requestAnimationFrame(tick);
+        };
+
+        state.rhythmRaf = requestAnimationFrame(tick);
+      }
+
+      function handleReactorTap(clientX, clientY) {
+        if (
+          bonusOverlay.classList.contains('open') ||
+          summaryOverlay.classList.contains('open') ||
+          rankingOverlay.classList.contains('open') ||
+          helpOverlay.classList.contains('open')
+        ) {
+          return;
+        }
+        if (state.phase === 'LOCKED' || state.phase === 'BONUS' || state.phase === 'SUMMARY') {
+          return;
+        }
+
+        const now = performance.now();
+
+        if (state.phase === 'RUSH' && state.lastTapAt > 0) {
+          const dt = now - state.lastTapAt;
+          if (dt < state.dedupeMs) return;
+          if (dt >= RHYTHM_CUTOFF_MS) {
+            triggerRhythmBreak();
+            return;
+          }
+          state.lastIntervalMs = dt;
+          state.intervalsMs.push(dt);
+        } else {
+          state.phase = 'RUSH';
+          state.intenseClicks = 0;
+          state.tapTimestamps = [];
+          state.intervalsMs = [];
+          state.roundStartedAt = now;
+          state.cps = 0;
+          state.peakCps = 0;
+          state.unlockedCeiling = 3;
+          state.lastIntervalMs = null;
+          state.beatRecordThisRound = false;
+          recordAlert.classList.remove('show');
+          applyTierTheme(3);
+          startRhythmLoop();
+        }
+
+        state.lastTapAt = now;
+        state.intenseClicks += 1;
+        state.tapTimestamps.push(now);
+
+        const currentCps = computeCps(now);
+        state.cps = currentCps;
+        if (currentCps > state.peakCps) {
+          state.peakCps = currentCps;
+        }
+
+        const prevCeiling = state.unlockedCeiling;
+        const nextCeiling = computeUnlockedCeiling(state.peakCps);
+        if (nextCeiling > prevCeiling) {
+          state.unlockedCeiling = nextCeiling;
+          applyTierTheme(nextCeiling);
+          playTierUnlockSound(nextCeiling);
+          triggerHaptic([24, 30, 38]);
+        } else {
+          playLaserPulse(state.cps, state.unlockedCeiling);
+          triggerHaptic(10);
+        }
+
+        tapButton.classList.add('pressed');
+        setTimeout(() => tapButton.classList.remove('pressed'), 55);
+        spawnCyberPulse(clientX, clientY);
+        renderHud();
+      }
+
+      function buildBonusSegments(ceiling) {
+        if (ceiling === 5) {
+          return [
+            { mult: 1, flex: 1.5, cls: 'seg-x1', label: 'x1' },
+            { mult: 2, flex: 1.3, cls: 'seg-x2', label: 'x2' },
+            { mult: 3, flex: 1.15, cls: 'seg-x3', label: 'x3' },
+            { mult: 4, flex: 1.0, cls: 'seg-x4', label: 'x4' },
+            { mult: 5, flex: 0.9, cls: 'seg-x5', label: 'x5' },
+            { mult: 4, flex: 1.0, cls: 'seg-x4', label: 'x4' },
+            { mult: 3, flex: 1.15, cls: 'seg-x3', label: 'x3' },
+            { mult: 2, flex: 1.3, cls: 'seg-x2', label: 'x2' },
+            { mult: 1, flex: 1.5, cls: 'seg-x1', label: 'x1' }
+          ];
+        }
+        if (ceiling === 4) {
+          return [
+            { mult: 1, flex: 1.7, cls: 'seg-x1', label: 'x1' },
+            { mult: 2, flex: 1.4, cls: 'seg-x2', label: 'x2' },
+            { mult: 3, flex: 1.2, cls: 'seg-x3', label: 'x3' },
+            { mult: 4, flex: 1.1, cls: 'seg-x4', label: 'x4' },
+            { mult: 3, flex: 1.2, cls: 'seg-x3', label: 'x3' },
+            { mult: 2, flex: 1.4, cls: 'seg-x2', label: 'x2' },
+            { mult: 1, flex: 1.7, cls: 'seg-x1', label: 'x1' }
+          ];
+        }
+        return [
+          { mult: 1, flex: 1.9, cls: 'seg-x1', label: 'x1' },
+          { mult: 2, flex: 1.5, cls: 'seg-x2', label: 'x2' },
+          { mult: 3, flex: 1.25, cls: 'seg-x3', label: 'x3' },
+          { mult: 2, flex: 1.5, cls: 'seg-x2', label: 'x2' },
+          { mult: 1, flex: 1.9, cls: 'seg-x1', label: 'x1' }
+        ];
+      }
+
+      function renderBonusTrack(segments) {
+        bonusZones.innerHTML = '';
+        const weights = segments.map((s) => `${s.flex}fr`).join(' ');
+        bonusZones.style.gridTemplateColumns = weights;
+
+        const totalFlex = segments.reduce((acc, s) => acc + s.flex, 0);
+        let cursor = 0;
+
+        segments.forEach((seg, idx) => {
+          const start = cursor / totalFlex;
+          cursor += seg.flex;
+          const end = cursor / totalFlex;
+          seg.start = start;
+          seg.end = end;
+          seg.idx = idx;
+
+          const cell = document.createElement('div');
+          cell.className = `zone-seg ${seg.cls}`;
+          cell.dataset.idx = String(idx);
+          cell.textContent = seg.label;
+          bonusZones.appendChild(cell);
+        });
+      }
+
+      function getSegmentAtPos(pos) {
+        const clamped = Math.max(0, Math.min(0.999999, pos));
+        for (let i = 0; i < state.bonusSegments.length; i++) {
+          const seg = state.bonusSegments[i];
+          if (clamped >= seg.start && clamped <= seg.end) {
+            return seg;
+          }
+        }
+        return state.bonusSegments[0] || { mult: 1, idx: 0, label: 'x1' };
+      }
+
+      function positionFrozenPin(markerPct) {
+        if (!trackStage || !laserTrack || !frozenPin) return;
+        const stageRect = trackStage.getBoundingClientRect();
+        const trackRect = laserTrack.getBoundingClientRect();
+        const rawCenter = trackRect.left - stageRect.left + trackRect.width * (markerPct / 100);
+        const halfPin = (frozenPin.offsetWidth || 96) / 2;
+        const clampedCenter = Math.max(halfPin + 4, Math.min(stageRect.width - halfPin - 4, rawCenter));
+        frozenPin.style.left = `${clampedCenter}px`;
+      }
+
+      function triggerRhythmBreak() {
+        if (state.phase !== 'RUSH') return;
+        if (state.rhythmRaf) cancelAnimationFrame(state.rhythmRaf);
+
+        state.phase = 'BONUS';
+        playCadenceBreakSound();
+        triggerHaptic([35, 45, 35]);
+
+        state.bonusLocked = false;
+        state.markerPos = 0.05;
+        state.markerDir = 1;
+        state.lastTickZoneIdx = -1;
+        state.markerSpeed =
+          state.unlockedCeiling === 5 ? 2.45 : state.unlockedCeiling === 4 ? 2.1 : 1.78;
+
+        state.bonusSegments = buildBonusSegments(state.unlockedCeiling);
+        renderBonusTrack(state.bonusSegments);
+
+        bonusTierInfo.textContent = `TECHO DESBLOQUEADO POR CPS: X${state.unlockedCeiling}`;
+        bonusClicksVal.textContent = String(state.intenseClicks);
+        bonusPeakCpsVal.textContent = state.peakCps.toFixed(1);
+        bonusMultVal.textContent = 'x1';
+        bonusClock.textContent = '5.0S';
+        bonusClock.classList.remove('urgent');
+
+        lightMarker.style.left = '5%';
+        lightMarker.classList.remove('frozen');
+        frozenPin.classList.remove('show');
+        frozenOutcomePanel.classList.remove('show');
+        bonusCaption.textContent =
+          'FRENÁ EL LÁSER ANTES DE 5.0S (TOQUE O ESPACIO). SI SE ACABA EL TIEMPO SE APLICA X1.';
+
+        stopLaserBtn.disabled = true;
+        stopLaserBtn.textContent = 'ARMANDO LÁSER...';
+
+        bonusOverlay.classList.add('open');
+
+        const now = performance.now();
+        state.bonusStartedAt = now;
+        state.bonusArmedAt = now + BONUS_ARM_GUARD_MS;
+
+        let lastFrame = now;
+
+        const loopBonus = (frameNow) => {
+          if (state.phase !== 'BONUS' || state.bonusLocked) return;
+
+          const dt = Math.min((frameNow - lastFrame) / 1000, 0.05);
+          lastFrame = frameNow;
+
+          const elapsed = frameNow - state.bonusStartedAt;
+          const remainingMs = Math.max(0, BONUS_WINDOW_MS - elapsed);
+
+          if (frameNow >= state.bonusArmedAt && stopLaserBtn.disabled) {
+            stopLaserBtn.disabled = false;
+            stopLaserBtn.textContent = 'FRENAR LÁSER';
+          }
+
+          bonusClock.textContent = `${(remainingMs / 1000).toFixed(1)}S`;
+          if (remainingMs <= 1600) {
+            bonusClock.classList.add('urgent');
+          }
+
+          state.markerPos += state.markerDir * state.markerSpeed * dt;
+          if (state.markerPos >= 0.97) {
+            state.markerPos = 0.97;
+            state.markerDir = -1;
+          } else if (state.markerPos <= 0.03) {
+            state.markerPos = 0.03;
+            state.markerDir = 1;
+          }
+
+          const pct = state.markerPos * 100;
+          lightMarker.style.left = `${pct.toFixed(2)}%`;
+
+          const seg = getSegmentAtPos(state.markerPos);
+          bonusMultVal.textContent = `x${seg.mult}`;
+
+          if (seg.idx !== state.lastTickZoneIdx) {
+            state.lastTickZoneIdx = seg.idx;
+            playLaserTick(seg.mult);
+          }
+
+          if (remainingMs <= 0) {
+            freezeBonusLaser(true);
+            return;
+          }
+
+          state.bonusRaf = requestAnimationFrame(loopBonus);
+        };
+
+        state.bonusRaf = requestAnimationFrame(loopBonus);
+      }
+
+      function freezeBonusLaser(timedOut = false) {
+        if (state.phase !== 'BONUS' || state.bonusLocked) return;
+        const now = performance.now();
+        if (!timedOut && now < state.bonusArmedAt) return;
+
+        state.bonusLocked = true;
+        if (state.bonusRaf) cancelAnimationFrame(state.bonusRaf);
+
+        const seg = timedOut
+          ? { mult: 1, idx: -1, label: 'x1' }
+          : getSegmentAtPos(state.markerPos);
+        const finalMult = timedOut ? 1 : seg.mult;
+        const finalScore = Math.round(state.intenseClicks * finalMult);
+
+        state.bonusMultiplier = finalMult;
+        state.multipliedResult = finalScore;
+
+        lightMarker.classList.add('frozen');
+        stopLaserBtn.disabled = true;
+        stopLaserBtn.textContent = timedOut ? 'TIEMPO AGOTADO (X1)' : 'LÁSER CONGELADO';
+
+        const cells = bonusZones.querySelectorAll('.zone-seg');
+        cells.forEach((c) => c.classList.remove('hit-glow'));
+        if (seg.idx >= 0 && cells[seg.idx]) {
+          cells[seg.idx].classList.add('hit-glow');
+        }
+
+        const pct = state.markerPos * 100;
+        frozenPin.textContent = timedOut ? 'TIEMPO AGOTADO · x1' : `FRENADO · x${finalMult}`;
+        frozenPin.classList.add('show');
+        positionFrozenPin(pct);
+
+        frozenZoneLabel.textContent = timedOut
+          ? 'TIEMPO AGOTADO · MULTIPLICADOR X1'
+          : `LÁSER CONGELADO EN X${finalMult}`;
+        frozenFinalScore.textContent = `${state.intenseClicks} × ${finalMult} = ${finalScore} PTS`;
+        frozenOutcomePanel.classList.add('show');
+
+        playFreezeChord(finalMult);
+        triggerHaptic(finalMult >= 4 ? [30, 40, 60] : [25, 30]);
+
+        state.freezeTimeout = setTimeout(() => {
+          bonusOverlay.classList.remove('open');
+          finalizeRound(finalMult, finalScore);
+        }, FREEZE_INSPECT_MS);
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function updateAuthUi(user) {
+        state.googleUser = user || null;
+        if (user) {
+          const shortName = (user.displayName || user.email || 'PILOTO').split(' ')[0].toUpperCase();
+          googleAuthText.textContent = shortName.slice(0, 14);
+          googleAuthBtn.classList.add('active');
+          state.alias = (user.displayName || shortName).slice(0, 20);
+          state.personalMaxScore = readPersonalBestForUid(user.uid, state.devicePlatform);
+        } else {
+          googleAuthText.textContent = 'ENTRAR CON GOOGLE';
+          googleAuthBtn.classList.remove('active');
+          state.personalMaxScore = 0;
+        }
+        renderHud();
+      }
+
+      async function syncRemoteLeaderboard(platform = state.devicePlatform) {
+        const fb = window.OvertapFirebase;
+        if (!fb) return;
+        try {
+          const rows = await fb.fetchGlobalTop(platform, 25);
+          state.globalRankingByPlatform[platform] = rows;
+          if (rows.length > 0 && typeof rows[0].score === 'number' && rows[0].score > state.maxScore) {
+            state.maxScore = rows[0].score;
+          }
+          if (state.googleUser && state.googleUser.uid && platform === state.devicePlatform) {
+            const mine = await fb.fetchPersonalBest(platform, state.googleUser.uid);
+            if (mine && typeof mine.score === 'number') {
+              state.personalMaxScore = Math.max(state.personalMaxScore, mine.score);
+              writePersonalBestForUid(state.googleUser.uid, state.personalMaxScore, platform);
+            }
+          }
+          renderHud();
+          if (rankingOverlay.classList.contains('open') && state.rankingTab === platform) {
+            renderRankingList(platform);
+          }
+        } catch (err) {
+          console.warn('No se pudo sincronizar ranking global:', err);
+        }
+      }
+
+      function renderRankingList(platform = state.rankingTab) {
+        const targetPlatform = platform === 'mobile' ? 'mobile' : 'pc';
+        rankingScopeLabel.textContent = `TOP 10 · CATEGORÍA ${targetPlatform === 'mobile' ? 'MÓVIL' : 'PC'}`;
+
+        tabRankingPc.classList.toggle('active', targetPlatform === 'pc');
+        tabRankingMobile.classList.toggle('active', targetPlatform === 'mobile');
+
+        const rows = getPlatformLeaderboardRows(targetPlatform).slice(0, 10);
+        rankingContainer.innerHTML = '';
+
+        if (rows.length === 0) {
+          rankingContainer.innerHTML = `
+            <div style="padding: 16px; text-align: center; background: #02050e; border: 1px solid rgba(0,243,255,0.2); color: var(--text-slate); font-size: 13px;">
+              Todavía no hay registros en la categoría ${targetPlatform === 'mobile' ? 'MÓVIL' : 'PC'}.
+            </div>
+          `;
+          return;
+        }
+
+        const currentUid = state.googleUser && state.googleUser.uid ? state.googleUser.uid : null;
+
+        rows.forEach((row, index) => {
+          const pos = index + 1;
+          const isMe = currentUid && row.uid === currentUid;
+          const flag = countryCodeToFlag(row.countryCode);
+          const item = document.createElement('div');
+          item.className = 'chamfer-sm';
+          item.style.cssText = `
+            display: grid;
+            grid-template-columns: 38px 1fr auto;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            background: ${isMe ? 'rgba(0, 243, 255, 0.14)' : '#02050e'};
+            border: 1px solid ${pos === 1 ? 'var(--gold)' : isMe ? 'var(--cyan)' : 'rgba(0, 243, 255, 0.22)'};
+          `;
+
+          const rankColor = pos === 1 ? 'var(--gold)' : pos === 2 ? '#e2e8f0' : pos === 3 ? '#f59e0b' : 'var(--cyan)';
+          item.innerHTML = `
+            <div style="font-family: var(--font-display); font-style: italic; font-size: 15px; font-weight: 900; color: ${rankColor};">
+              #${pos}
+            </div>
+            <div style="min-width: 0;">
+              <div style="font-size: 13px; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                ${flag} ${escapeHtml(row.name || 'PILOTO')}
+              </div>
+              <div style="font-size: 11px; font-weight: 700; color: var(--text-slate);">
+                ${row.clicks || 0} clics · x${row.mult || 1} · ${(Number(row.peakCps) || 0).toFixed(1)} CPS
+              </div>
+            </div>
+            <div style="font-family: var(--font-display); font-style: italic; font-size: 17px; font-weight: 900; color: ${pos === 1 ? 'var(--gold)' : '#ffffff'};">
+              ${row.score}
+            </div>
+          `;
+          rankingContainer.appendChild(item);
+        });
+      }
+
+      async function finalizeRound(landedMultiplier, finalScore) {
+        state.phase = 'SUMMARY';
+        state.roundsPlayed += 1;
+
+        const telemetry = buildSessionTelemetry(landedMultiplier, finalScore);
+        state.lastTelemetry = telemetry;
+
+        const topGlobalBefore = getTopGlobalScore();
+        if (finalScore > topGlobalBefore) {
+          state.maxScore = finalScore;
+          state.beatRecordThisRound = true;
+          recordAlert.classList.add('show');
+        }
+
+        const isSignedIn = Boolean(state.googleUser && state.googleUser.uid);
+        if (isSignedIn && finalScore > state.personalMaxScore) {
+          state.personalMaxScore = finalScore;
+          writePersonalBestForUid(state.googleUser.uid, finalScore, state.devicePlatform);
+        }
+
+        const entry = {
+          uid: isSignedIn ? state.googleUser.uid : 'local_guest',
+          name: isSignedIn ? (state.googleUser.displayName || state.alias) : state.alias,
+          countryCode: state.countryCode,
+          platform: state.devicePlatform,
+          score: finalScore,
+          clicks: state.intenseClicks,
+          mult: landedMultiplier,
+          peakCps: Number(state.peakCps.toFixed(1)),
+          ceiling: state.unlockedCeiling
+        };
+
+        if (isSignedIn) {
+          const existingIdx = state.ranking.findIndex(
+            (r) => r.uid === entry.uid && (r.platform || 'pc') === entry.platform
+          );
+          if (existingIdx >= 0) {
+            if (entry.score > state.ranking[existingIdx].score) {
+              state.ranking[existingIdx] = entry;
+            }
+          } else {
+            state.ranking.push(entry);
+          }
+        }
+
+        saveState();
+        renderHud();
+
+        summaryMultBadge.textContent = `x${landedMultiplier}`;
+        summaryFinalVal.textContent = `${finalScore} PTS`;
+        summaryMaxVal.textContent = `${isSignedIn ? state.personalMaxScore : getTopGlobalScore()} PTS`;
+        summaryClicksVal.textContent = String(state.intenseClicks);
+        summaryStatsVal.textContent = `${state.peakCps.toFixed(1)} CPS / X${state.unlockedCeiling}`;
+
+        const projectedRank = computeRankPosition(finalScore, state.devicePlatform, isSignedIn);
+        summaryRankVal.textContent = `#${projectedRank}`;
+
+        summaryNotice.classList.remove('show');
+        summaryLoginBox.style.display = 'none';
+
+        if (!isSignedIn) {
+          summaryNotice.textContent =
+            'NO INICIASTE SESIÓN CON GOOGLE: ESTE PUNTAJE NO SE GUARDA EN EL RANKING GLOBAL.';
+          summaryNotice.classList.add('show');
+          summaryLoginBox.style.display = 'block';
+        } else if (window.OvertapFirebase) {
+          try {
+            const res = await window.OvertapFirebase.upsertPlayerScore(entry, telemetry);
+            if (res && res.msg) {
+              summaryNotice.textContent = res.msg;
+              summaryNotice.classList.add('show');
+            }
+            if (res && typeof res.personalBest === 'number') {
+              state.personalMaxScore = Math.max(state.personalMaxScore, res.personalBest);
+              writePersonalBestForUid(state.googleUser.uid, state.personalMaxScore, state.devicePlatform);
+            }
+            await syncRemoteLeaderboard(state.devicePlatform);
+            const updatedRank = computeRankPosition(
+              Math.max(finalScore, state.personalMaxScore),
+              state.devicePlatform,
+              true
+            );
+            summaryRankVal.textContent = `#${updatedRank}`;
+            summaryMaxVal.textContent = `${state.personalMaxScore} PTS`;
+          } catch (err) {
+            console.warn('Error guardando puntaje en Firestore:', err);
+          }
+        }
+
+        state.summaryOpenedAt = performance.now();
+        summaryOverlay.classList.add('open');
+      }
+
+      function resetToReadyState() {
+        if (state.rhythmRaf) cancelAnimationFrame(state.rhythmRaf);
+        if (state.bonusRaf) cancelAnimationFrame(state.bonusRaf);
+        if (state.freezeTimeout) clearTimeout(state.freezeTimeout);
+
+        bonusOverlay.classList.remove('open');
+        summaryOverlay.classList.remove('open');
+
+        state.phase = 'LOCKED';
+        state.intenseClicks = 0;
+        state.lastTapAt = 0;
+        state.lastIntervalMs = null;
+        state.tapTimestamps = [];
+        state.intervalsMs = [];
+        state.cps = 0;
+        state.peakCps = 0;
+        state.unlockedCeiling = 3;
+        state.bonusMultiplier = 1;
+        state.multipliedResult = 0;
+
+        rhythmBarFill.style.width = '0%';
+        rhythmBarFill.classList.remove('danger');
+        applyTierTheme(3);
+        renderHud();
+
+        setTimeout(() => {
+          if (state.phase === 'LOCKED') {
+            state.phase = 'IDLE';
+            renderHud();
+          }
+        }, POST_ROUND_LOCK_MS);
+      }
+
+      tapButton.addEventListener('pointerdown', (e) => {
+        if (e.button !== undefined && e.button !== 0) return;
+        e.preventDefault();
+        handleReactorTap(e.clientX, e.clientY);
+      });
+
+      stopLaserBtn.addEventListener('pointerdown', (e) => {
+        if (e.button !== undefined && e.button !== 0) return;
+        e.preventDefault();
+        freezeBonusLaser(false);
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') {
+          if (
+            rankingOverlay.classList.contains('open') ||
+            helpOverlay.classList.contains('open')
+          ) {
+            return;
+          }
+          e.preventDefault();
+          if (e.repeat) return;
+
+          if (state.phase === 'BONUS') {
+            freezeBonusLaser(false);
+          } else if (state.phase === 'IDLE' || state.phase === 'RUSH') {
+            handleReactorTap(0, 0);
+          }
+        } else if (e.code === 'Escape') {
+          rankingOverlay.classList.remove('open');
+          helpOverlay.classList.remove('open');
+        }
+      });
+
+      playAgainBtn.addEventListener('click', () => {
+        if (performance.now() - state.summaryOpenedAt < 250) return;
+        resetToReadyState();
+      });
+
+      async function handleGoogleAuthToggle() {
+        const fb = window.OvertapFirebase;
+        if (!fb) return;
+        try {
+          if (state.googleUser) {
+            await fb.signOutUser();
+          } else {
+            await fb.signInWithGoogle();
+          }
+        } catch (err) {
+          console.warn('Error en autenticación con Google:', err);
+        }
+      }
+
+      googleAuthBtn.addEventListener('click', handleGoogleAuthToggle);
+
+      summaryGoogleLoginBtn.addEventListener('click', async () => {
+        const fb = window.OvertapFirebase;
+        if (!fb) return;
+        try {
+          const user = await fb.signInWithGoogle();
+          if (user && state.lastTelemetry && state.multipliedResult > 0) {
+            const entry = {
+              uid: user.uid,
+              name: user.displayName || state.alias,
+              countryCode: state.countryCode,
+              platform: state.devicePlatform,
+              score: state.multipliedResult,
+              clicks: state.intenseClicks,
+              mult: state.bonusMultiplier,
+              peakCps: Number(state.peakCps.toFixed(1)),
+              ceiling: state.unlockedCeiling
+            };
+            const res = await fb.upsertPlayerScore(entry, state.lastTelemetry);
+            if (res && res.msg) {
+              summaryNotice.textContent = res.msg;
+              summaryNotice.classList.add('show');
+            }
+            summaryLoginBox.style.display = 'none';
+            await syncRemoteLeaderboard(state.devicePlatform);
+            summaryMaxVal.textContent = `${state.personalMaxScore} PTS`;
+          }
+        } catch (err) {
+          console.warn('Error iniciando sesión desde resumen:', err);
+        }
+      });
+
+      openRankingBtn.addEventListener('click', async () => {
+        state.rankingTab = state.devicePlatform;
+        renderRankingList(state.rankingTab);
+        rankingOverlay.classList.add('open');
+        await Promise.all([syncRemoteLeaderboard('pc'), syncRemoteLeaderboard('mobile')]);
+        renderRankingList(state.rankingTab);
+      });
+
+      closeRankingBtn.addEventListener('click', () => {
+        rankingOverlay.classList.remove('open');
+      });
+
+      tabRankingPc.addEventListener('click', async () => {
+        state.rankingTab = 'pc';
+        renderRankingList('pc');
+        await syncRemoteLeaderboard('pc');
+      });
+
+      tabRankingMobile.addEventListener('click', async () => {
+        state.rankingTab = 'mobile';
+        renderRankingList('mobile');
+        await syncRemoteLeaderboard('mobile');
+      });
+
+      openHelpBtn.addEventListener('click', () => {
+        helpOverlay.classList.add('open');
+      });
+
+      closeHelpBtn.addEventListener('click', () => {
+        helpOverlay.classList.remove('open');
+      });
+
+      closeHelpFooterBtn.addEventListener('click', () => {
+        helpOverlay.classList.remove('open');
+      });
+
+      dismissHelpForeverBtn.addEventListener('click', () => {
+        try {
+          localStorage.setItem(STORAGE_KEYS.HIDE_HELP_ON_START, '1');
+        } catch (_) {}
+        helpOverlay.classList.remove('open');
+      });
+
+      window.addEventListener('overtap-auth-changed', async (e) => {
+        const user = e.detail ? e.detail.user : null;
+        updateAuthUi(user);
+        await syncRemoteLeaderboard(state.devicePlatform);
+      });
+
+      loadState();
+      updateAuthUi(window.OvertapFirebase ? window.OvertapFirebase.currentUser : null);
+      renderHud();
+      syncRemoteLeaderboard('pc');
+      syncRemoteLeaderboard('mobile');
+
+      try {
+        if (localStorage.getItem(STORAGE_KEYS.HIDE_HELP_ON_START) !== '1') {
+          helpOverlay.classList.add('open');
+        }
+      } catch (_) {
+        helpOverlay.classList.add('open');
+      }
     })();
   </script>
 </body>
